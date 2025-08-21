@@ -31,7 +31,7 @@ export default function DashboardPage() {
                         </CardDescription>
                     </div>
                      <Button asChild>
-                        <Link href="#">Completar verificación</Link>
+                        <Link href="/dashboard/verification">Completar verificación</Link>
                     </Button>
                 </CardHeader>
             </Card>
