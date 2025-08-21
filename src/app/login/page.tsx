@@ -26,35 +26,28 @@ import { useToast } from "@/hooks/use-toast";
 import { Twitter, Linkedin } from "lucide-react";
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   email: z.string().email({ message: "Por favor, introduce una dirección de correo electrónico válida." }),
   password: z.string().min(8, { message: "La contraseña debe tener al menos 8 caracteres." }),
-  confirmPassword: z.string(),
-}).refine(data => data.password === data.confirmPassword, {
-    message: "Las contraseñas no coinciden.",
-    path: ["confirmPassword"],
 });
 
-export default function RegisterPage() {
+export default function LoginPage() {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
       email: "",
       password: "",
-      confirmPassword: "",
     },
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     console.log(values);
     toast({
-      title: "Cuenta Creada",
-      description: "Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.",
+      title: "Inicio de Sesión Exitoso",
+      description: "¡Bienvenido de vuelta!",
     });
     form.reset();
-    // Aquí iría la lógica para redirigir al login o al dashboard
+    // Aquí iría la lógica para redirigir al dashboard
   }
 
   return (
@@ -64,27 +57,14 @@ export default function RegisterPage() {
         <div className="container mx-auto max-w-md py-20 sm:py-32">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-4xl">Crear Cuenta</CardTitle>
+              <CardTitle className="font-headline text-4xl">Iniciar Sesión</CardTitle>
               <CardDescription>
-                Únete a AltoPatrimonio y empieza a construir tu futuro financiero.
+                Accede a tu cuenta de AltoPatrimonio.
               </CardDescription>
             </CardHeader>
             <CardContent>
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nombre Completo</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Juan Pérez" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <FormField
                     control={form.control}
                     name="email"
@@ -111,26 +91,13 @@ export default function RegisterPage() {
                       </FormItem>
                     )}
                   />
-                   <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirmar Contraseña</FormLabel>
-                        <FormControl>
-                          <Input type="password" placeholder="********" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                   <Button type="submit" size="lg" className="w-full text-lg">
-                    Crear mi Cuenta
+                    Iniciar Sesión
                   </Button>
                 </form>
               </Form>
               <div className="mt-6 text-center text-sm text-muted-foreground">
-                ¿Ya tienes una cuenta? <Link href="/login" className="font-semibold text-primary hover:underline">Inicia Sesión</Link>
+                ¿No tienes una cuenta? <Link href="/register" className="font-semibold text-primary hover:underline">Regístrate</Link>
               </div>
             </CardContent>
           </Card>

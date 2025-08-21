@@ -139,9 +139,14 @@ function Header() {
           <Link href="/#how-it-works" className="font-medium text-muted-foreground transition-colors hover:text-primary">Cómo Funciona</Link>
           <Link href="/#education" className="font-medium text-muted-foreground transition-colors hover:text-primary">Aprende</Link>
         </nav>
-        <Button size="lg" className="hidden md:flex" asChild>
-            <Link href="/contact">Contáctanos</Link>
-        </Button>
+        <div className="hidden items-center gap-4 md:flex">
+          <Button variant="ghost" asChild>
+            <Link href="/login">Iniciar Sesión</Link>
+          </Button>
+          <Button asChild>
+              <Link href="/register">Registrarse</Link>
+          </Button>
+        </div>
       </div>
     </header>
   );
@@ -169,24 +174,53 @@ function Footer() {
     return (
         <footer className="border-t bg-card">
             <div className="container mx-auto max-w-7xl px-4 py-8 sm:py-12">
-                <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-                    <div className="flex items-center gap-3">
-                        <Logo className="h-7 w-auto text-primary" />
-                        <span className="font-headline text-2xl font-bold text-foreground">AltoPatrimonio</span>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                  <div className="flex flex-col items-center md:items-start">
+                      <div className="flex items-center gap-3">
+                          <Logo className="h-7 w-auto text-primary" />
+                          <span className="font-headline text-2xl font-bold text-foreground">AltoPatrimonio</span>
+                      </div>
+                      <p className="mt-4 text-sm text-muted-foreground">Construyendo futuros a través de la inversión inmobiliaria inteligente.</p>
+                      <div className="mt-6 flex items-center gap-5">
+                          <Link href="#" aria-label="Twitter">
+                              <Twitter className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
+                          </Link>
+                          <Link href="#" aria-label="LinkedIn">
+                              <Linkedin className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
+                          </Link>
+                      </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-8">
+                    <div>
+                      <h4 className="font-headline font-semibold text-foreground">Navegación</h4>
+                      <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                        <li><Link href="/#projects" className="hover:text-primary">Proyectos</Link></li>
+                        <li><Link href="/#how-it-works" className="hover:text-primary">Cómo Funciona</Link></li>
+                        <li><Link href="/#education" className="hover:text-primary">Aprende</Link></li>
+                      </ul>
                     </div>
-                    <p className="text-center text-sm text-muted-foreground">&copy; {new Date().getFullYear()} AltoPatrimonio Invest. Todos los derechos reservados.</p>
-                    <div className="flex items-center gap-5">
-                        <Link href="#" aria-label="Twitter">
-                            <Twitter className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
-                        </Link>
-                        <Link href="#" aria-label="LinkedIn">
-                            <Linkedin className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
-                        </Link>
+                    <div>
+                      <h4 className="font-headline font-semibold text-foreground">Legal</h4>
+                      <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                        <li><Link href="#" className="hover:text-primary">Términos y Condiciones</Link></li>
+                        <li><Link href="#" className="hover:text-primary">Política de Privacidad</Link></li>
+                        <li><Link href="/contact" className="hover:text-primary">Contacto</Link></li>
+                      </ul>
                     </div>
+                  </div>
+                  <div className="flex flex-col items-center md:items-start">
+                    <h4 className="font-headline font-semibold text-foreground">Mantente Informado</h4>
+                    <p className="mt-4 text-sm text-muted-foreground">Suscríbete a nuestro boletín para recibir las últimas noticias y oportunidades.</p>
+                    <div className="mt-4 flex w-full max-w-sm items-center space-x-2">
+                        <Input type="email" placeholder="Tu correo electrónico" className="flex-1" />
+                        <Button type="submit">Suscribirse</Button>
+                    </div>
+                  </div>
+                </div>
+                <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
+                    <p>&copy; {new Date().getFullYear()} AltoPatrimonio Invest. Todos los derechos reservados.</p>
                 </div>
             </div>
         </footer>
     );
 }
-
-    
