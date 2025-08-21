@@ -38,6 +38,9 @@ import {
   Loader2,
   Twitter,
   Linkedin,
+  Warehouse,
+  Home,
+  Mountain,
 } from "lucide-react";
 import { getIntelligentCTA } from "@/ai/flows/intelligent-cta";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -104,6 +107,27 @@ const projectTypes = [
     title: "Proyectos de Alquiler",
     description: "Invierte en una cartera de propiedades de alquiler y obtén ingresos pasivos constantes.",
   },
+  {
+    image: "https://placehold.co/600x400.png",
+    hint: "industrial warehouse",
+    icon: Warehouse,
+    title: "Propiedades Industriales",
+    description: "Participa en el crecimiento del sector logístico invirtiendo en almacenes y centros de distribución.",
+  },
+  {
+    image: "https://placehold.co/600x400.png",
+    hint: "suburban home",
+    icon: Home,
+    title: "Fix and Flip Residencial",
+    description: "Financia la compra y renovación de viviendas para venderlas a un precio mayor y obtener ganancias a corto plazo.",
+  },
+  {
+    image: "https://placehold.co/600x400.png",
+    hint: "land plot",
+    icon: Mountain,
+    title: "Inversión en Terrenos",
+    description: "Asegura terrenos en zonas de crecimiento estratégico para futuros desarrollos o para vender con plusvalía.",
+  }
 ];
 
 const investmentSteps = [
@@ -191,16 +215,16 @@ export default function HomePage() {
   }, [navigationPattern]);
 
   return (
-    <div className="flex min-h-screen w-full flex-col">
+    <div className="flex min-h-screen w-full flex-col bg-background">
       <Header />
       <main className="flex-1">
         <HeroSection />
-        <ImpactSection />
         <ValuePropSection />
+        <ImpactSection />
         <ProjectsSection onProjectInteract={handleProjectInteraction} />
         <HowItWorksSection />
-        <EducationSection />
         <TestimonialsSection />
+        <EducationSection />
         <CtaSection ctaText={ctaText} isLoading={isLoadingCta} />
       </main>
       <Footer />
@@ -211,19 +235,19 @@ export default function HomePage() {
 function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 max-w-7xl items-center justify-between">
+      <div className="container flex h-20 max-w-7xl items-center justify-between">
         <Link href="#" className="flex items-center gap-2">
-          <Landmark className="h-7 w-7 text-primary" />
-          <span className="font-headline text-2xl font-bold text-primary">
+          <Landmark className="h-8 w-8 text-primary" />
+          <span className="font-headline text-3xl font-bold tracking-wide text-foreground">
             AltoPatrimonio
           </span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm md:flex">
+        <nav className="hidden items-center gap-8 text-base md:flex">
           <Link href="#projects" className="font-medium text-muted-foreground transition-colors hover:text-primary">Proyectos</Link>
           <Link href="#how-it-works" className="font-medium text-muted-foreground transition-colors hover:text-primary">Cómo Funciona</Link>
           <Link href="#education" className="font-medium text-muted-foreground transition-colors hover:text-primary">Aprende</Link>
         </nav>
-        <Button className="bg-accent text-accent-foreground hover:bg-accent/90">Contáctanos</Button>
+        <Button size="lg" className="hidden md:flex">Contáctanos</Button>
       </div>
     </header>
   );
@@ -231,20 +255,20 @@ function Header() {
 
 function HeroSection() {
   return (
-    <section className="py-20 text-center sm:py-32">
-      <div className="container max-w-4xl">
-        <h1 className="font-headline text-5xl font-bold tracking-tight text-primary md:text-7xl">
+    <section className="py-24 text-center sm:py-40">
+      <div className="container max-w-5xl">
+        <h1 className="font-headline text-5xl font-bold tracking-tighter text-foreground sm:text-7xl md:text-8xl">
           Construye tu Futuro con Activos Tangibles
         </h1>
-        <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
+        <p className="mx-auto mt-6 max-w-3xl text-lg text-muted-foreground md:text-xl">
           AltoPatrimonio te ofrece una forma segura y transparente de invertir en
           proyectos inmobiliarios seleccionados. Haz crecer tu patrimonio con nosotros.
         </p>
-        <div className="mt-8 flex justify-center gap-4">
-          <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
+        <div className="mt-10 flex justify-center gap-4">
+          <Button size="lg" asChild className="text-lg">
             <Link href="#projects">Explorar Proyectos</Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="border-primary text-primary hover:bg-primary/5">
+          <Button size="lg" variant="outline" asChild className="text-lg">
              <Link href="#how-it-works">Aprende Más</Link>
           </Button>
         </div>
@@ -253,46 +277,28 @@ function HeroSection() {
   );
 }
 
-function ImpactSection() {
-  return (
-    <section className="bg-white py-16 sm:py-24">
-      <div className="container">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
-          {impactMetrics.map((metric) => (
-            <div key={metric.label} className="text-center">
-              <metric.icon className="mx-auto h-10 w-10 text-accent" />
-              <p className="mt-4 font-headline text-5xl font-bold text-primary">{metric.value}</p>
-              <p className="mt-1 text-sm font-medium text-muted-foreground">{metric.label}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function ValuePropSection() {
   return (
-    <section className="py-20 sm:py-32">
+    <section className="bg-background py-20 sm:py-32">
       <div className="container max-w-6xl">
         <div className="text-center">
-          <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
+          <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
             La Ventaja de AltoPatrimonio
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground">
             Estamos comprometidos a proporcionar una experiencia de inversión superior a través de nuestros principios fundamentales.
           </p>
         </div>
-        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="mt-20 grid grid-cols-1 gap-12 md:grid-cols-3">
           {valueProps.map((prop) => {
             const Icon = prop.icon;
             return(
               <div key={prop.title} className="flex flex-col items-center text-center">
-                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
-                  <Icon className="h-8 w-8 text-primary" />
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
+                  <Icon className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="mt-6 font-headline text-2xl font-semibold text-primary">{prop.title}</h3>
-                <p className="mt-2 text-base text-muted-foreground">{prop.description}</p>
+                <h3 className="mt-6 font-headline text-2xl font-semibold text-foreground">{prop.title}</h3>
+                <p className="mt-3 text-base text-muted-foreground">{prop.description}</p>
               </div>
             );
           })}
@@ -302,36 +308,59 @@ function ValuePropSection() {
   );
 }
 
+function ImpactSection() {
+  return (
+    <section className="bg-card py-20 sm:py-24">
+      <div className="container">
+        <div className="grid grid-cols-1 gap-y-12 md:grid-cols-3 md:divide-x md:divide-border">
+          {impactMetrics.map((metric, index) => (
+            <div key={metric.label} className="flex flex-col items-center text-center">
+              <metric.icon className="h-12 w-12 text-accent" />
+              <p className="mt-4 font-headline text-6xl font-bold text-foreground">{metric.value}</p>
+              <p className="mt-2 text-base font-medium uppercase tracking-wider text-muted-foreground">{metric.label}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
 function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void }) {
   return (
-    <section id="projects" className="bg-white py-20 sm:py-32">
-      <div className="container max-w-6xl">
+    <section id="projects" className="bg-background py-20 sm:py-32">
+      <div className="container max-w-7xl">
         <div className="text-center">
-          <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
+          <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
             Oportunidades de Inversión Destacadas
           </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+          <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground">
             Explora nuestros proyectos cuidadosamente seleccionados, cada uno con un potencial único de crecimiento y rentabilidad.
           </p>
         </div>
-        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-20 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {projectTypes.map((project) => (
-            <Card key={project.title} className="overflow-hidden shadow-lg transition-transform duration-300 hover:-translate-y-2">
+            <Card key={project.title} className="group flex transform flex-col overflow-hidden border-2 border-transparent shadow-lg transition-all duration-300 hover:border-primary hover:shadow-2xl hover:-translate-y-2">
               <CardHeader className="p-0">
-                <Image
-                  src={project.image}
-                  alt={project.title}
-                  width={600}
-                  height={400}
-                  className="h-56 w-full object-cover"
-                  data-ai-hint={project.hint}
-                />
+                <div className="overflow-hidden">
+                  <Image
+                    src={project.image}
+                    alt={project.title}
+                    width={600}
+                    height={400}
+                    className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    data-ai-hint={project.hint}
+                  />
+                </div>
               </CardHeader>
-              <CardContent className="p-6">
-                <project.icon className="mb-4 h-8 w-8 text-accent" />
-                <CardTitle className="font-headline text-2xl text-primary">{project.title}</CardTitle>
-                <CardDescription className="mt-2 text-base">{project.description}</CardDescription>
-                <Button onClick={onProjectInteract} className="mt-6 w-full bg-accent text-accent-foreground hover:bg-accent/90">Aprende Más</Button>
+              <CardContent className="flex flex-1 flex-col p-6">
+                <div className="flex-1">
+                  <project.icon className="mb-4 h-10 w-10 text-primary" />
+                  <CardTitle className="font-headline text-2xl text-foreground">{project.title}</CardTitle>
+                  <CardDescription className="mt-3 text-base text-muted-foreground">{project.description}</CardDescription>
+                </div>
+                <Button onClick={onProjectInteract} className="mt-6 w-full text-lg">Aprende Más</Button>
               </CardContent>
             </Card>
           ))}
@@ -343,35 +372,33 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
 
 function HowItWorksSection() {
     return (
-      <section id="how-it-works" className="py-20 sm:py-32">
+      <section id="how-it-works" className="py-20 sm:py-32 bg-card">
         <div className="container max-w-6xl">
           <div className="text-center">
-            <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
+            <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
               Tu Viaje hacia la Inversión Inmobiliaria
             </h2>
-            <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
+            <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground">
               Invertir con nosotros es un proceso sencillo de cuatro pasos.
             </p>
           </div>
-          <div className="relative mt-16">
-             <div className="absolute left-1/2 top-0 hidden h-full w-0.5 -translate-x-1/2 bg-border md:block" aria-hidden="true"></div>
-            <div className="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+          <div className="relative mt-20">
+             <div className="absolute left-1/2 top-12 hidden h-[calc(100%-6rem)] w-0.5 -translate-x-1/2 bg-border md:block" aria-hidden="true"></div>
+            <div className="grid grid-cols-1 gap-x-8 gap-y-16 md:grid-cols-2 lg:grid-cols-4">
               {investmentSteps.map((step, index) => {
                 const Icon = step.icon
                 return(
-                  <div key={step.title} className="relative flex items-start gap-6">
-                      <div className="absolute -left-[calc(50%-1.25rem)] top-1 z-10 hidden h-10 w-10 items-center justify-center rounded-full bg-background ring-4 ring-background md:flex lg:left-1/2 lg:-translate-x-1/2">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary bg-background">
-                            <span className="font-headline text-lg text-primary">{index + 1}</span>
+                  <div key={step.title} className="relative flex flex-col items-center text-center">
+                      <div className="absolute -top-16 z-10 hidden h-12 w-12 items-center justify-center rounded-full bg-card ring-8 ring-card md:flex">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary bg-background">
+                            <span className="font-headline text-2xl text-primary">{index + 1}</span>
                           </div>
                       </div>
-                     <div className="flex flex-1 flex-col items-center text-center lg:items-start lg:text-left">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10">
-                            <Icon className="h-7 w-7 text-primary" />
-                        </div>
-                      <h3 className="mt-4 font-headline text-2xl font-semibold text-primary">{step.title}</h3>
-                      <p className="mt-1 text-base text-muted-foreground">{step.description}</p>
-                    </div>
+                      <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-primary/10">
+                          <Icon className="h-8 w-8 text-primary" />
+                      </div>
+                      <h3 className="mt-6 font-headline text-2xl font-semibold text-foreground">{step.title}</h3>
+                      <p className="mt-2 text-base text-muted-foreground">{step.description}</p>
                   </div>
                 )
               })}
@@ -382,41 +409,12 @@ function HowItWorksSection() {
     );
   }
 
-function EducationSection() {
-  return (
-    <section id="education" className="bg-white py-20 sm:py-32">
-      <div className="container max-w-6xl">
-        <div className="text-center">
-          <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
-            Portal de Educación Financiera
-          </h2>
-          <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Empodérate con conocimiento. Los inversores informados toman mejores decisiones.
-          </p>
-        </div>
-        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
-          {educationArticles.map((article) => (
-            <Card key={article.title} className="flex flex-col justify-between p-6 shadow-lg">
-                <div>
-                    <BookOpen className="mb-4 h-8 w-8 text-accent" />
-                    <h3 className="font-headline text-2xl font-semibold text-primary">{article.title}</h3>
-                    <p className="mt-2 text-base text-muted-foreground">{article.description}</p>
-                </div>
-                <Button variant="link" className="mt-4 p-0 text-accent hover:text-accent/80 justify-start">Leer Artículo &rarr;</Button>
-            </Card>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function TestimonialsSection() {
   return (
     <section className="py-20 sm:py-32">
       <div className="container max-w-4xl">
         <div className="text-center">
-          <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
+          <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
             De Nuestros Inversionistas
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
@@ -425,25 +423,25 @@ function TestimonialsSection() {
         </div>
         <Carousel
           opts={{ align: "start", loop: true }}
-          className="mx-auto mt-16 w-full max-w-2xl"
+          className="mx-auto mt-16 w-full max-w-3xl"
         >
           <CarouselContent>
             {testimonials.map((testimonial, index) => (
               <CarouselItem key={index}>
-                <Card className="border-2 border-accent/50 bg-white p-8 shadow-xl">
+                <Card className="border-border bg-card p-8 shadow-lg md:p-12">
                   <CardContent className="p-0 text-center">
                     <div className="flex justify-center text-accent">
-                      {[...Array(5)].map((_, i) => <Star key={i} className="h-5 w-5 fill-current" />)}
+                      {[...Array(5)].map((_, i) => <Star key={i} className="h-6 w-6 fill-current" />)}
                     </div>
-                    <p className="mt-6 text-lg italic text-primary">"{testimonial.quote}"</p>
+                    <p className="mt-6 text-xl italic text-foreground">"{testimonial.quote}"</p>
                     <div className="mt-8 flex items-center justify-center gap-4">
-                        <Avatar>
-                            <AvatarImage src={`https://placehold.co/40x40.png?text=${testimonial.name.charAt(0)}`} alt={testimonial.name} data-ai-hint="person portrait" />
+                        <Avatar className="h-16 w-16">
+                            <AvatarImage src={`https://placehold.co/64x64.png?text=${testimonial.name.charAt(0)}`} alt={testimonial.name} data-ai-hint="person portrait" />
                             <AvatarFallback>{testimonial.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
-                            <p className="font-bold text-primary">{testimonial.name}</p>
-                            <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                            <p className="font-headline text-xl font-bold text-foreground">{testimonial.name}</p>
+                            <p className="text-base text-muted-foreground">{testimonial.title}</p>
                         </div>
                     </div>
                   </CardContent>
@@ -451,9 +449,41 @@ function TestimonialsSection() {
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious />
-          <CarouselNext />
+          <CarouselPrevious className="-left-4 md:-left-16" />
+          <CarouselNext className="-right-4 md:-right-16" />
         </Carousel>
+      </div>
+    </section>
+  );
+}
+
+function EducationSection() {
+  return (
+    <section id="education" className="bg-card py-20 sm:py-32">
+      <div className="container max-w-6xl">
+        <div className="text-center">
+          <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
+            Portal de Educación Financiera
+          </h2>
+          <p className="mx-auto mt-4 max-w-3xl text-lg text-muted-foreground">
+            Empodérate con conocimiento. Los inversores informados toman mejores decisiones.
+          </p>
+        </div>
+        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
+          {educationArticles.map((article) => (
+            <Card key={article.title} className="group flex flex-col justify-between p-8 shadow-lg transition-shadow hover:shadow-xl">
+                <div>
+                    <BookOpen className="mb-4 h-10 w-10 text-primary" />
+                    <h3 className="font-headline text-2xl font-semibold text-foreground">{article.title}</h3>
+                    <p className="mt-3 text-base text-muted-foreground">{article.description}</p>
+                </div>
+                <Button variant="link" className="mt-6 justify-start p-0 text-base text-primary transition-all group-hover:gap-2">
+                  Leer Artículo
+                  <span aria-hidden="true" className="transition-transform group-hover:translate-x-1">&rarr;</span>
+                </Button>
+            </Card>
+          ))}
+        </div>
       </div>
     </section>
   );
@@ -463,17 +493,17 @@ function CtaSection({ ctaText, isLoading }: { ctaText: string, isLoading: boolea
   return (
     <section className="bg-primary py-20 text-center sm:py-24">
       <div className="container max-w-4xl">
-        <h2 className="font-headline text-4xl font-bold text-white md:text-5xl">
+        <h2 className="font-headline text-4xl font-bold text-primary-foreground md:text-6xl">
           ¿Listo para Empezar a Construir tu Riqueza?
         </h2>
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/80">
+        <p className="mx-auto mt-6 max-w-2xl text-lg text-primary-foreground/80">
           Únete a una comunidad de inversionistas expertos que están asegurando su futuro financiero con activos reales. Tu próxima gran inversión está a solo un clic de distancia.
         </p>
-        <div className="mt-8">
+        <div className="mt-10">
             {isLoading ? (
-                <Skeleton className="mx-auto h-12 w-48" />
+                <Skeleton className="mx-auto h-14 w-56 bg-white/20" />
             ) : (
-                <Button size="lg" className="bg-accent text-accent-foreground hover:bg-accent/90">
+                <Button size="lg" className="bg-accent text-lg font-bold text-accent-foreground hover:bg-accent/90">
                     {ctaText}
                 </Button>
             )}
@@ -485,20 +515,20 @@ function CtaSection({ ctaText, isLoading }: { ctaText: string, isLoading: boolea
 
 function Footer() {
     return (
-        <footer className="border-t">
-            <div className="container mx-auto max-w-7xl px-4 py-8">
+        <footer className="border-t bg-card">
+            <div className="container mx-auto max-w-7xl px-4 py-8 sm:py-12">
                 <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
-                    <div className="flex items-center gap-2">
-                        <Landmark className="h-6 w-6 text-primary" />
-                        <span className="font-headline text-xl font-bold text-primary">AltoPatrimonio</span>
+                    <div className="flex items-center gap-3">
+                        <Landmark className="h-7 w-7 text-primary" />
+                        <span className="font-headline text-2xl font-bold text-foreground">AltoPatrimonio</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} AltoPatrimonio Invest. Todos los derechos reservados.</p>
-                    <div className="flex items-center gap-4">
+                    <p className="text-center text-sm text-muted-foreground">&copy; {new Date().getFullYear()} AltoPatrimonio Invest. Todos los derechos reservados.</p>
+                    <div className="flex items-center gap-5">
                         <Link href="#" aria-label="Twitter">
-                            <Twitter className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
+                            <Twitter className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
                         </Link>
                         <Link href="#" aria-label="LinkedIn">
-                            <Linkedin className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
+                            <Linkedin className="h-6 w-6 text-muted-foreground transition-colors hover:text-primary" />
                         </Link>
                     </div>
                 </div>

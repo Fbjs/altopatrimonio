@@ -17,8 +17,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        body: ['"PT Sans"', 'sans-serif'],
-        headline: ['"Bebas Neue"', 'sans-serif'],
+        body: ['"Inter"', 'sans-serif'],
+        headline: ['"Lexend"', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
