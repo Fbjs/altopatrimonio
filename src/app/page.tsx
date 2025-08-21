@@ -18,6 +18,8 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Progress } from "@/components/ui/progress";
+import { Badge } from "@/components/ui/badge";
 import {
   Landmark,
   Users,
@@ -26,9 +28,7 @@ import {
   DollarSign,
   TrendingUp,
   Briefcase,
-  Building2,
-  KeyRound,
-  Repeat,
+  Clock,
   UserPlus,
   Search,
   HandCoins,
@@ -38,13 +38,11 @@ import {
   Loader2,
   Twitter,
   Linkedin,
-  Warehouse,
-  Home,
-  Mountain,
 } from "lucide-react";
 import { getIntelligentCTA } from "@/ai/flows/intelligent-cta";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from 'next/link';
+import { cn } from "@/lib/utils";
 
 const valueProps = [
   {
@@ -85,48 +83,84 @@ const impactMetrics = [
   },
 ];
 
-const projectTypes = [
+const projects = [
   {
     image: "https://placehold.co/600x400.png",
-    hint: "modern building",
-    icon: Building2,
-    title: "Desarrollos Inmobiliarios",
-    description: "Financia nuevas construcciones desde cero y cosecha las recompensas del desarrollo.",
+    hint: "mountain landscape",
+    title: "Leaseback Parcelas Pucón",
+    tag: "Reparto mensual de utilidades",
+    tagVariant: "secondary",
+    expectedReturn: "9%",
+    term: "12 meses",
+    minInvestment: "$15.000.000",
+    raised: 20000000,
+    goal: 171000000,
+    countdown: "1 día y 02:14:27 horas"
   },
   {
     image: "https://placehold.co/600x400.png",
-    hint: "house keys",
-    icon: KeyRound,
-    title: "Oportunidades de Leaseback",
-    description: "Compra propiedades y arriéndalas de nuevo a los propietarios originales para obtener ingresos estables a largo plazo.",
+    hint: "green field",
+    title: "Terreno San Carlos de Apoquindo",
+    tag: "Plusvalía",
+    tagVariant: "outline",
+    expectedReturn: "9%",
+    term: "12 meses",
+    minInvestment: "$15.000.000",
+    raised: 297000000,
+    goal: 400000000,
+    countdown: "4 días y 02:14:27 horas"
   },
   {
     image: "https://placehold.co/600x400.png",
-    hint: "apartment building",
-    icon: Repeat,
-    title: "Proyectos de Alquiler",
-    description: "Invierte en una cartera de propiedades de alquiler y obtén ingresos pasivos constantes.",
+    hint: "volcano landscape",
+    title: "Estancia Rupanco Etapa II",
+    tag: "Plusvalía",
+    tagVariant: "outline",
+    expectedReturn: "UF + 18%",
+    term: "24 meses",
+    minInvestment: "$15.000.000",
+    raised: 428000000,
+    goal: 445000000,
+    countdown: "4 días y 02:14:27 horas"
   },
   {
     image: "https://placehold.co/600x400.png",
-    hint: "industrial warehouse",
-    icon: Warehouse,
-    title: "Propiedades Industriales",
-    description: "Participa en el crecimiento del sector logístico invirtiendo en almacenes y centros de distribución.",
+    hint: "modern apartment building",
+    title: "Edificio Vista Montaña",
+    tag: "Renta residencial",
+    tagVariant: "secondary",
+    expectedReturn: "UF + 8%",
+    term: "36 meses",
+    minInvestment: "$20.000.000",
+    raised: 150000000,
+    goal: 500000000,
+    countdown: "10 días y 08:30:00 horas"
   },
   {
     image: "https://placehold.co/600x400.png",
-    hint: "suburban home",
-    icon: Home,
-    title: "Fix and Flip Residencial",
-    description: "Financia la compra y renovación de viviendas para venderlas a un precio mayor y obtener ganancias a corto plazo.",
+    hint: "commercial office space",
+    title: "Oficinas Corporativas El Golf",
+    tag: "Renta comercial",
+    tagVariant: "secondary",
+    expectedReturn: "UF + 10%",
+    term: "48 meses",
+    minInvestment: "$25.000.000",
+    raised: 300000000,
+    goal: 600000000,
+    countdown: "15 días y 12:00:00 horas"
   },
   {
     image: "https://placehold.co/600x400.png",
-    hint: "land plot",
-    icon: Mountain,
-    title: "Inversión en Terrenos",
-    description: "Asegura terrenos en zonas de crecimiento estratégico para futuros desarrollos o para vender con plusvalía.",
+    hint: "warehouse logistics center",
+    title: "Centro Logístico Ruta 5",
+    tag: "Renta industrial",
+    tagVariant: "secondary",
+    expectedReturn: "UF + 12%",
+    term: "60 meses",
+    minInvestment: "$30.000.000",
+    raised: 450000000,
+    goal: 800000000,
+    countdown: "20 días y 18:45:00 horas"
   }
 ];
 
@@ -363,8 +397,11 @@ function ImpactSection() {
   );
 }
 
-
 function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void }) {
+  const formatCurrency = (value: number) => {
+    return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
+  }
+
   return (
     <section id="projects" className="bg-background py-20 sm:py-32">
       <div className="container max-w-7xl">
@@ -377,10 +414,14 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
           </p>
         </div>
         <div className="mt-20 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-          {projectTypes.map((project) => (
-            <Card key={project.title} className="group flex transform flex-col overflow-hidden border-2 border-transparent shadow-lg transition-all duration-300 hover:border-primary hover:shadow-2xl hover:-translate-y-2">
-              <CardHeader className="p-0">
-                <div className="overflow-hidden">
+          {projects.map((project, index) => (
+            <Card key={index} className="group flex transform flex-col overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+              <CardHeader className="relative p-0">
+                <Badge variant="secondary" className="absolute left-4 top-4 z-10">
+                  <Clock className="mr-1.5 h-4 w-4" />
+                  {project.countdown}
+                </Badge>
+                <div className="overflow-hidden rounded-t-lg">
                   <Image
                     src={project.image}
                     alt={project.title}
@@ -393,11 +434,39 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
               </CardHeader>
               <CardContent className="flex flex-1 flex-col p-6">
                 <div className="flex-1">
-                  <project.icon className="mb-4 h-10 w-10 text-primary" />
-                  <CardTitle className="font-headline text-2xl text-foreground">{project.title}</CardTitle>
-                  <CardDescription className="mt-3 text-base text-muted-foreground">{project.description}</CardDescription>
+                  <h3 className="font-headline text-2xl font-bold text-foreground">{project.title}</h3>
+                  <Badge variant={project.tagVariant as any} className="mt-2 font-semibold">{project.tag}</Badge>
+                  
+                  <div className="mt-6 space-y-4 text-sm text-muted-foreground">
+                    <div className="flex justify-between">
+                      <span>Rentabilidad total esperada</span>
+                      <span className="font-bold text-primary">{project.expectedReturn}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Plazo de inversión</span>
+                      <span className="font-semibold text-foreground">{project.term}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Inversión mínima</span>
+                      <span className="font-semibold text-foreground">{project.minInvestment}</span>
+                    </div>
+                  </div>
+
+                  <div className="mt-6">
+                    <div className="mb-2 flex justify-between text-sm">
+                      <span className="text-muted-foreground">Recaudado</span>
+                      <span className="text-muted-foreground">A recaudar</span>
+                    </div>
+                    <Progress value={(project.raised / project.goal) * 100} className="h-2" />
+                    <div className="mt-2 flex justify-between text-sm font-semibold text-foreground">
+                      <span>{formatCurrency(project.raised)} ({((project.raised / project.goal) * 100).toFixed(2)}%)</span>
+                       <span>{formatCurrency(project.goal - project.raised)}</span>
+                    </div>
+                  </div>
                 </div>
-                <Button onClick={onProjectInteract} className="mt-6 w-full text-lg">Aprende Más</Button>
+                <Button onClick={onProjectInteract} className="mt-6 w-full text-lg font-bold">
+                  ¡Quiero Invertir!
+                </Button>
               </CardContent>
             </Card>
           ))}
@@ -573,3 +642,5 @@ function Footer() {
         </footer>
     );
 }
+
+    
