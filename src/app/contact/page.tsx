@@ -155,6 +155,19 @@ function Header() {
 }
 
 function Footer() {
+    const { toast } = useToast();
+    const [email, setEmail] = React.useState('');
+
+    const handleSubscription = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (email) {
+            toast({
+                title: "¡Suscripción Exitosa!",
+                description: "Gracias por suscribirte a nuestro boletín.",
+            });
+            setEmail('');
+        }
+    };
     return (
         <footer className="border-t bg-card">
             <div className="container mx-auto max-w-7xl px-4 py-8 sm:py-12">
@@ -195,10 +208,17 @@ function Footer() {
                   <div className="flex flex-col items-center md:items-start">
                     <h4 className="font-headline font-semibold text-foreground">Mantente Informado</h4>
                     <p className="mt-4 text-sm text-muted-foreground">Suscríbete a nuestro boletín para recibir las últimas noticias y oportunidades.</p>
-                    <div className="mt-4 flex w-full max-w-sm items-center space-x-2">
-                        <Input type="email" placeholder="Tu correo electrónico" className="flex-1" />
-                        <Button type="submit">Suscribirse</Button>
-                    </div>
+                    <form onSubmit={handleSubscription} className="mt-4 flex w-full max-w-sm items-center space-x-2">
+                        <Input 
+                          type="email" 
+                          placeholder="Tu correo electrónico" 
+                          className="flex-1" 
+                          value={email}
+                          onChange={(e) => setEmail(e.target.value)}
+                          required
+                        />
+                        <Button type="submit" className="transition-transform duration-200 active:scale-95">Suscribirse</Button>
+                    </form>
                   </div>
                 </div>
                 <div className="mt-8 border-t pt-8 text-center text-sm text-muted-foreground">
