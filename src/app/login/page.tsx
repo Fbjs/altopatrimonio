@@ -172,7 +172,7 @@ function Footer() {
                     <div>
                       <h4 className="font-headline font-semibold text-foreground">Legal</h4>
                       <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
-                        <li><Link href="#" className="hover:text-primary">Términos y Condiciones</Link></li>
+                        <li><Link href="/terms" className="hover:text-primary">Términos y Condiciones</Link></li>
                         <li><Link href="#" className="hover:text-primary">Política de Privacidad</Link></li>
                         <li><Link href="/contact" className="hover:text-primary">Contacto</Link></li>
                       </ul>
