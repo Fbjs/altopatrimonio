@@ -12,12 +12,12 @@ import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
 
 const IntelligentCTAInputSchema = z.object({
-  navigationPattern: z.string().describe('The navigation pattern of the user on the website.'),
+  navigationPattern: z.string().describe('El patrón de navegación del usuario en el sitio web.'),
 });
 export type IntelligentCTAInput = z.infer<typeof IntelligentCTAInputSchema>;
 
 const IntelligentCTAOutputSchema = z.object({
-  cta: z.string().describe('The call to action to display to the user.'),
+  cta: z.string().describe('La llamada a la acción para mostrar al usuario.'),
 });
 export type IntelligentCTAOutput = z.infer<typeof IntelligentCTAOutputSchema>;
 
@@ -29,15 +29,15 @@ const prompt = ai.definePrompt({
   name: 'intelligentCTAPrompt',
   input: {schema: IntelligentCTAInputSchema},
   output: {schema: IntelligentCTAOutputSchema},
-  prompt: `You are an expert in call to action generation.
+  prompt: `Eres un experto en la generación de llamadas a la acción.
 
-  Based on the user's navigation pattern, you will generate a call to action to encourage the user to explore projects or schedule a meeting.
+  Basado en el patrón de navegación del usuario, generarás una llamada a la acción para animar al usuario a explorar proyectos o programar una reunión.
 
-  Navigation pattern: {{{navigationPattern}}}
+  Patrón de navegación: {{{navigationPattern}}}
 
-  Consider the navigation pattern and suggest only ONE call to action that is most relevant to the user.
-  If user is browsing projects, encourage them to schedule a meeting. If the user is not browsing projects, encourage them to explore projects.
-  The call to action should be concise and actionable. Do not include any explanation.  e.g. "Explore Projects" or "Schedule a Meeting".`,
+  Considera el patrón de navegación y sugiere solo UNA llamada a la acción que sea más relevante para el usuario.
+  Si el usuario está navegando por proyectos, anímale a programar una reunión. Si el usuario no está navegando por proyectos, anímale a explorar proyectos.
+  La llamada a la acción debe ser concisa y procesable. No incluyas ninguna explicación. p.ej. "Explorar Proyectos" o "Programar una Reunión".`,
 });
 
 const intelligentCTAFlow = ai.defineFlow(

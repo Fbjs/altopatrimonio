@@ -46,21 +46,21 @@ import Link from 'next/link';
 const valueProps = [
   {
     icon: Users,
-    title: "Accessible Investment",
+    title: "Inversión Accesible",
     description:
-      "Start your investment journey with a minimum amount, making real estate accessible to everyone.",
+      "Comienza tu viaje de inversión con un monto mínimo, haciendo que los bienes raíces sean accesibles para todos.",
   },
   {
     icon: GitMerge,
-    title: "Co-Investment Strategy",
+    title: "Estrategia de Co-inversión",
     description:
-      "Invest alongside us. Our success is tied to yours, ensuring aligned interests and shared goals.",
+      "Invierte junto a nosotros. Nuestro éxito está ligado al tuyo, asegurando intereses alineados y metas compartidas.",
   },
   {
     icon: ClipboardCheck,
-    title: "Transparent Management",
+    title: "Gestión Transparente",
     description:
-      "Gain full visibility into your investments with our detailed project tracking and regular reports.",
+      "Obtén visibilidad completa de tus inversiones con nuestro seguimiento detallado de proyectos e informes regulares.",
   },
 ];
 
@@ -68,17 +68,17 @@ const impactMetrics = [
   {
     icon: DollarSign,
     value: "$15M+",
-    label: "Capital Raised",
+    label: "Capital Recaudado",
   },
   {
     icon: TrendingUp,
     value: "$2M+",
-    label: "Interest Paid to Investors",
+    label: "Intereses Pagados a Inversores",
   },
   {
     icon: Briefcase,
     value: "50+",
-    label: "Managed Projects",
+    label: "Proyectos Gestionados",
   },
 ];
 
@@ -87,91 +87,91 @@ const projectTypes = [
     image: "https://placehold.co/600x400.png",
     hint: "modern building",
     icon: Building2,
-    title: "Real Estate Developments",
-    description: "Finance new constructions from the ground up and reap the rewards of development.",
+    title: "Desarrollos Inmobiliarios",
+    description: "Financia nuevas construcciones desde cero y cosecha las recompensas del desarrollo.",
   },
   {
     image: "https://placehold.co/600x400.png",
     hint: "house keys",
     icon: KeyRound,
-    title: "Leaseback Opportunities",
-    description: "Purchase properties and lease them back to the original owners for steady, long-term income.",
+    title: "Oportunidades de Leaseback",
+    description: "Compra propiedades y arriéndalas de nuevo a los propietarios originales para obtener ingresos estables a largo plazo.",
   },
   {
     image: "https://placehold.co/600x400.png",
     hint: "apartment building",
     icon: Repeat,
-    title: "Rental Projects",
-    description: "Invest in a portfolio of rental properties and earn consistent passive income.",
+    title: "Proyectos de Alquiler",
+    description: "Invierte en una cartera de propiedades de alquiler y obtén ingresos pasivos constantes.",
   },
 ];
 
 const investmentSteps = [
   {
     icon: UserPlus,
-    title: "Register & Verify",
-    description: "Create your account and complete a simple verification process.",
+    title: "Regístrate y Verifica",
+    description: "Crea tu cuenta y completa un sencillo proceso de verificación.",
   },
   {
     icon: Search,
-    title: "Select a Project",
-    description: "Browse our curated list of investment opportunities and choose one that fits your goals.",
+    title: "Selecciona un Proyecto",
+    description: "Explora nuestra lista seleccionada de oportunidades de inversión y elige la que se ajuste a tus metas.",
   },
   {
     icon: HandCoins,
-    title: "Invest Securely",
-    description: "Make your investment through our secure platform and receive your digital certificate.",
+    title: "Invierte con Seguridad",
+    description: "Realiza tu inversión a través de nuestra plataforma segura y recibe tu certificado digital.",
   },
   {
     icon: LineChart,
-    title: "Earn Returns",
-    description: "Track your investment's performance and receive your returns as the project prospers.",
+    title: "Obtén Rentabilidad",
+    description: "Sigue el rendimiento de tu inversión y recibe tus ganancias a medida que el proyecto prospera.",
   },
 ];
 
 const educationArticles = [
   {
-    title: "Real Estate Crowdfunding 101",
-    description: "Understand the basics of how real estate crowdfunding works.",
+    title: "Crowdfunding Inmobiliario 101",
+    description: "Comprende los conceptos básicos de cómo funciona el crowdfunding inmobiliario.",
   },
   {
-    title: "Benefits and Risks of Real Estate Investment",
-    description: "A balanced view on what to expect when you invest in property.",
+    title: "Beneficios y Riesgos de la Inversión Inmobiliaria",
+    description: "Una visión equilibrada de qué esperar cuando inviertes en propiedades.",
   },
   {
-    title: "Diversifying Your Portfolio with Real Estate",
-    description: "Learn why real estate is a key component of a healthy investment portfolio.",
+    title: "Diversificando tu Portafolio con Bienes Raíces",
+    description: "Aprende por qué los bienes raíces son un componente clave de una cartera de inversión saludable.",
   },
 ];
 
 const testimonials = [
   {
     quote:
-      "The consistent monthly returns have been a fantastic addition to my portfolio. AltoPatrimonio's platform is transparent and easy to use.",
-    name: "Carlos Velazquez",
-    title: "Investor",
+      "Los rendimientos mensuales constantes han sido una adición fantástica a mi cartera. La plataforma de AltoPatrimonio es transparente y fácil de usar.",
+    name: "Carlos Velázquez",
+    title: "Inversionista",
   },
   {
     quote:
-      "I was new to real estate investing, but their team guided me through every step. The security and professionalism are top-notch.",
-    name: "Sofia Rossi",
-    title: "Investor",
+      "Era nuevo en la inversión inmobiliaria, pero su equipo me guió en cada paso. La seguridad y el profesionalismo son de primera categoría.",
+    name: "Sofía Rossi",
+    title: "Inversionista",
   },
   {
     quote:
-      "Seeing my investment grow through their detailed project updates is incredibly reassuring. A truly passive and profitable experience.",
-    name: "Mateo Fernandez",
-    title: "Investor",
+      "Ver crecer mi inversión a través de sus detalladas actualizaciones de proyectos es increíblemente tranquilizador. Una experiencia verdaderamente pasiva y rentable.",
+    name: "Mateo Fernández",
+    title: "Inversionista",
   },
 ];
 
 export default function HomePage() {
-  const [navigationPattern, setNavigationPattern] = useState("Initial visit: User has just landed on the page.");
+  const [navigationPattern, setNavigationPattern] = useState("Visita inicial: El usuario acaba de llegar a la página.");
   const [ctaText, setCtaText] = useState("");
   const [isLoadingCta, setIsLoadingCta] = useState(true);
 
   const handleProjectInteraction = () => {
-    setNavigationPattern("User is browsing projects, showing interest in investment opportunities.");
+    setNavigationPattern("El usuario está navegando por los proyectos, mostrando interés en oportunidades de inversión.");
   };
 
   useEffect(() => {
@@ -181,8 +181,8 @@ export default function HomePage() {
         const result = await getIntelligentCTA({ navigationPattern });
         setCtaText(result.cta);
       } catch (error) {
-        console.error("Error fetching intelligent CTA:", error);
-        setCtaText("Explore Projects"); // Fallback CTA
+        console.error("Error al obtener el CTA inteligente:", error);
+        setCtaText("Explorar Proyectos"); // Fallback CTA
       } finally {
         setIsLoadingCta(false);
       }
@@ -219,11 +219,11 @@ function Header() {
           </span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm md:flex">
-          <Link href="#projects" className="font-medium text-muted-foreground transition-colors hover:text-primary">Projects</Link>
-          <Link href="#how-it-works" className="font-medium text-muted-foreground transition-colors hover:text-primary">How It Works</Link>
-          <Link href="#education" className="font-medium text-muted-foreground transition-colors hover:text-primary">Learn</Link>
+          <Link href="#projects" className="font-medium text-muted-foreground transition-colors hover:text-primary">Proyectos</Link>
+          <Link href="#how-it-works" className="font-medium text-muted-foreground transition-colors hover:text-primary">Cómo Funciona</Link>
+          <Link href="#education" className="font-medium text-muted-foreground transition-colors hover:text-primary">Aprende</Link>
         </nav>
-        <Button className="bg-accent text-accent-foreground hover:bg-accent/90">Contact Us</Button>
+        <Button className="bg-accent text-accent-foreground hover:bg-accent/90">Contáctanos</Button>
       </div>
     </header>
   );
@@ -234,18 +234,18 @@ function HeroSection() {
     <section className="py-20 text-center sm:py-32">
       <div className="container max-w-4xl">
         <h1 className="font-headline text-5xl font-bold tracking-tight text-primary md:text-7xl">
-          Build Your Future with Tangible Assets
+          Construye tu Futuro con Activos Tangibles
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-muted-foreground">
-          AltoPatrimonio offers you a secure and transparent way to invest in
-          curated real estate projects. Grow your wealth with us.
+          AltoPatrimonio te ofrece una forma segura y transparente de invertir en
+          proyectos inmobiliarios seleccionados. Haz crecer tu patrimonio con nosotros.
         </p>
         <div className="mt-8 flex justify-center gap-4">
           <Button size="lg" asChild className="bg-primary text-primary-foreground hover:bg-primary/90">
-            <Link href="#projects">Explore Projects</Link>
+            <Link href="#projects">Explorar Proyectos</Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="border-primary text-primary hover:bg-primary/5">
-             <Link href="#how-it-works">Learn More</Link>
+             <Link href="#how-it-works">Aprende Más</Link>
           </Button>
         </div>
       </div>
@@ -277,10 +277,10 @@ function ValuePropSection() {
       <div className="container max-w-6xl">
         <div className="text-center">
           <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
-            The AltoPatrimonio Advantage
+            La Ventaja de AltoPatrimonio
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            We are committed to providing a superior investment experience through our core principles.
+            Estamos comprometidos a proporcionar una experiencia de inversión superior a través de nuestros principios fundamentales.
           </p>
         </div>
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -308,10 +308,10 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
       <div className="container max-w-6xl">
         <div className="text-center">
           <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
-            Featured Investment Opportunities
+            Oportunidades de Inversión Destacadas
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Explore our carefully selected projects, each offering a unique potential for growth and returns.
+            Explora nuestros proyectos cuidadosamente seleccionados, cada uno con un potencial único de crecimiento y rentabilidad.
           </p>
         </div>
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
@@ -331,7 +331,7 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
                 <project.icon className="mb-4 h-8 w-8 text-accent" />
                 <CardTitle className="font-headline text-2xl text-primary">{project.title}</CardTitle>
                 <CardDescription className="mt-2 text-base">{project.description}</CardDescription>
-                <Button onClick={onProjectInteract} className="mt-6 w-full bg-accent text-accent-foreground hover:bg-accent/90">Learn More</Button>
+                <Button onClick={onProjectInteract} className="mt-6 w-full bg-accent text-accent-foreground hover:bg-accent/90">Aprende Más</Button>
               </CardContent>
             </Card>
           ))}
@@ -347,10 +347,10 @@ function HowItWorksSection() {
         <div className="container max-w-6xl">
           <div className="text-center">
             <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
-              Your Journey to Real Estate Investment
+              Tu Viaje hacia la Inversión Inmobiliaria
             </h2>
             <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-              Investing with us is a straightforward, four-step process.
+              Invertir con nosotros es un proceso sencillo de cuatro pasos.
             </p>
           </div>
           <div className="relative mt-16">
@@ -388,10 +388,10 @@ function EducationSection() {
       <div className="container max-w-6xl">
         <div className="text-center">
           <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
-            Financial Education Portal
+            Portal de Educación Financiera
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Empower yourself with knowledge. Informed investors make better decisions.
+            Empodérate con conocimiento. Los inversores informados toman mejores decisiones.
           </p>
         </div>
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
@@ -402,7 +402,7 @@ function EducationSection() {
                     <h3 className="font-headline text-2xl font-semibold text-primary">{article.title}</h3>
                     <p className="mt-2 text-base text-muted-foreground">{article.description}</p>
                 </div>
-                <Button variant="link" className="mt-4 p-0 text-accent hover:text-accent/80 justify-start">Read Article &rarr;</Button>
+                <Button variant="link" className="mt-4 p-0 text-accent hover:text-accent/80 justify-start">Leer Artículo &rarr;</Button>
             </Card>
           ))}
         </div>
@@ -417,10 +417,10 @@ function TestimonialsSection() {
       <div className="container max-w-4xl">
         <div className="text-center">
           <h2 className="font-headline text-4xl font-bold text-primary md:text-5xl">
-            From Our Investors
+            De Nuestros Inversionistas
           </h2>
           <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-            Hear what our community is saying about their experience with AltoPatrimonio.
+            Escucha lo que nuestra comunidad dice sobre su experiencia con AltoPatrimonio.
           </p>
         </div>
         <Carousel
@@ -464,10 +464,10 @@ function CtaSection({ ctaText, isLoading }: { ctaText: string, isLoading: boolea
     <section className="bg-primary py-20 text-center sm:py-24">
       <div className="container max-w-4xl">
         <h2 className="font-headline text-4xl font-bold text-white md:text-5xl">
-          Ready to Start Building Your Wealth?
+          ¿Listo para Empezar a Construir tu Riqueza?
         </h2>
         <p className="mx-auto mt-4 max-w-2xl text-lg text-primary-foreground/80">
-          Join a community of savvy investors who are securing their financial future with real assets. Your next great investment is just a click away.
+          Únete a una comunidad de inversionistas expertos que están asegurando su futuro financiero con activos reales. Tu próxima gran inversión está a solo un clic de distancia.
         </p>
         <div className="mt-8">
             {isLoading ? (
@@ -492,7 +492,7 @@ function Footer() {
                         <Landmark className="h-6 w-6 text-primary" />
                         <span className="font-headline text-xl font-bold text-primary">AltoPatrimonio</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} AltoPatrimonio Invest. All Rights Reserved.</p>
+                    <p className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} AltoPatrimonio Invest. Todos los derechos reservados.</p>
                     <div className="flex items-center gap-4">
                         <Link href="#" aria-label="Twitter">
                             <Twitter className="h-5 w-5 text-muted-foreground transition-colors hover:text-primary" />
