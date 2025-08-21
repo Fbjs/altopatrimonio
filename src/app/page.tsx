@@ -86,8 +86,11 @@ const impactMetrics = [
 const projects = [
   {
     slug: "leaseback-parcelas-pucon",
-    image: "https://placehold.co/600x400.png",
-    hint: "mountain landscape",
+    images: [
+        { src: "https://placehold.co/600x400.png", hint: "mountain landscape" },
+        { src: "https://placehold.co/600x400.png", hint: "lake view" },
+        { src: "https://placehold.co/600x400.png", hint: "forest trail" }
+    ],
     title: "Leaseback Parcelas Pucón",
     tag: "Reparto mensual de utilidades",
     tagVariant: "secondary",
@@ -100,8 +103,11 @@ const projects = [
   },
   {
     slug: "terreno-san-carlos-de-apoquindo",
-    image: "https://placehold.co/600x400.png",
-    hint: "green field",
+    images: [
+        { src: "https://placehold.co/600x400.png", hint: "green field" },
+        { src: "https://placehold.co/600x400.png", hint: "city suburb" },
+        { src: "https://placehold.co/600x400.png", hint: "modern house blueprints" }
+    ],
     title: "Terreno San Carlos de Apoquindo",
     tag: "Plusvalía",
     tagVariant: "outline",
@@ -114,8 +120,11 @@ const projects = [
   },
   {
     slug: "estancia-rupanco-etapa-ii",
-    image: "https://placehold.co/600x400.png",
-    hint: "volcano landscape",
+    images: [
+        { src: "https://placehold.co/600x400.png", hint: "volcano landscape" },
+        { src: "https://placehold.co/600x400.png", hint: "pristine lake" },
+        { src: "https://placehold.co/600x400.png", hint: "aerial drone shot" }
+    ],
     title: "Estancia Rupanco Etapa II",
     tag: "Plusvalía",
     tagVariant: "outline",
@@ -128,8 +137,11 @@ const projects = [
   },
   {
     slug: "edificio-vista-montana",
-    image: "https://placehold.co/600x400.png",
-    hint: "modern apartment building",
+    images: [
+        { src: "https://placehold.co/600x400.png", hint: "modern apartment building" },
+        { src: "https://placehold.co/600x400.png", hint: "luxury apartment interior" },
+        { src: "https://placehold.co/600x400.png", hint: "rooftop pool" }
+    ],
     title: "Edificio Vista Montaña",
     tag: "Renta residencial",
     tagVariant: "secondary",
@@ -142,8 +154,11 @@ const projects = [
   },
   {
     slug: "oficinas-corporativas-el-golf",
-    image: "https://placehold.co/600x400.png",
-    hint: "commercial office space",
+    images: [
+        { src: "https://placehold.co/600x400.png", hint: "commercial office space" },
+        { src: "https://placehold.co/600x400.png", hint: "modern office lobby" },
+        { src: "https://placehold.co/600x400.png", hint: "glass facade building" }
+    ],
     title: "Oficinas Corporativas El Golf",
     tag: "Renta comercial",
     tagVariant: "secondary",
@@ -156,8 +171,11 @@ const projects = [
   },
   {
     slug: "centro-logistico-ruta-5",
-    image: "https://placehold.co/600x400.png",
-    hint: "warehouse logistics center",
+    images: [
+        { src: "https://placehold.co/600x400.png", hint: "warehouse logistics center" },
+        { src: "https://placehold.co/600x400.png", hint: "loading dock" },
+        { src: "https://placehold.co/600x400.png", hint: "trucks warehouse" }
+    ],
     title: "Centro Logístico Ruta 5",
     tag: "Renta industrial",
     tagVariant: "secondary",
@@ -429,16 +447,26 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
                   <Clock className="mr-1.5 h-4 w-4" />
                   {project.countdown}
                 </Badge>
-                <div className="overflow-hidden rounded-t-lg">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    width={600}
-                    height={400}
-                    className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    data-ai-hint={project.hint}
-                  />
-                </div>
+                <Carousel className="w-full">
+                    <CarouselContent>
+                        {project.images.map((image, idx) => (
+                            <CarouselItem key={idx}>
+                                <div className="overflow-hidden rounded-t-lg">
+                                    <Image
+                                        src={image.src}
+                                        alt={project.title}
+                                        width={600}
+                                        height={400}
+                                        className="h-64 w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                        data-ai-hint={image.hint}
+                                    />
+                                </div>
+                            </CarouselItem>
+                        ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-4" />
+                    <CarouselNext className="right-4" />
+                </Carousel>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col p-6">
                 <div className="flex-1">

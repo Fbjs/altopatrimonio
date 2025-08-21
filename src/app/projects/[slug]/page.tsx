@@ -18,11 +18,15 @@ import { ArrowLeft, Twitter, Linkedin, User } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 
 
 const project = {
-  image: "https://placehold.co/800x600.png",
-  hint: "modern building",
+  images: [
+      { src: "https://placehold.co/800x600.png", hint: "modern building" },
+      { src: "https://placehold.co/800x600.png", hint: "apartment interior" },
+      { src: "https://placehold.co/800x600.png", hint: "building aerial view" },
+  ],
   title: "Leaseback Parcelas Pucón",
   tag: "Reparto mensual de utilidades",
   tagVariant: "secondary",
@@ -74,14 +78,24 @@ export default function ProjectDetailPage() {
             <div className="lg:col-span-3">
               <Card className="overflow-hidden shadow-lg">
                 <CardContent className="p-0">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    width={800}
-                    height={600}
-                    className="h-auto w-full object-cover"
-                    data-ai-hint={project.hint}
-                  />
+                  <Carousel>
+                    <CarouselContent>
+                      {project.images.map((image, index) => (
+                        <CarouselItem key={index}>
+                          <Image
+                            src={image.src}
+                            alt={project.title}
+                            width={800}
+                            height={600}
+                            className="h-auto w-full object-cover"
+                            data-ai-hint={image.hint}
+                          />
+                        </CarouselItem>
+                      ))}
+                    </CarouselContent>
+                    <CarouselPrevious className="left-4" />
+                    <CarouselNext className="right-4" />
+                  </Carousel>
                   <div className="p-6">
                     <h1 className="font-headline text-3xl font-bold text-foreground">
                       {project.title}
