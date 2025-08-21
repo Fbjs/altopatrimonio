@@ -14,11 +14,12 @@ import {
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Twitter, Linkedin } from "lucide-react";
+import { ArrowLeft, Twitter, Linkedin, User } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 
-// Hardcoded data for a single project, you can replace this with a dynamic fetch
+
 const project = {
   image: "https://placehold.co/800x600.png",
   hint: "modern building",
@@ -31,7 +32,23 @@ const project = {
   annualizedReturn: "14%",
   minInvestment: 0,
   maxInvestment: 15000000,
+  description: "El proyecto Leaseback Parcelas Pucón consiste en la adquisición de un portafolio de terrenos de alta plusvalía en la zona lacustre de Pucón. Mediante un contrato de leaseback, se arriendan los terrenos a la empresa vendedora por un plazo de 18 meses, generando un flujo de ingresos mensual para los inversionistas. Al final del período, la empresa tiene la opción de recompra, ofreciendo una atractiva rentabilidad total. Esta es una oportunidad de inversión inmobiliaria con bajo riesgo, respaldada por activos tangibles en una de las zonas de mayor desarrollo turístico de Chile.",
 };
+
+const investors = [
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+    { name: "Constructora INSATEC SpA" },
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+    { name: "Inversionista Anónimo" },
+];
 
 const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
@@ -89,9 +106,40 @@ export default function ProjectDetailPage() {
                   </div>
                 </CardContent>
               </Card>
+
+              <Card className="mt-8 shadow-lg">
+                <CardContent className="p-6">
+                  <Tabs defaultValue="description">
+                    <TabsList className="grid w-full grid-cols-2">
+                      <TabsTrigger value="description">Descripción</TabsTrigger>
+                      <TabsTrigger value="investors">Inversionistas</TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="description" className="mt-6">
+                      <h3 className="font-headline text-xl font-semibold text-foreground">Detalles del Proyecto</h3>
+                      <p className="mt-4 text-muted-foreground">{project.description}</p>
+                    </TabsContent>
+                    <TabsContent value="investors" className="mt-6">
+                      <h3 className="font-headline text-xl font-semibold text-foreground">Inversionistas de la Ronda</h3>
+                        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                            {investors.map((investor, index) => (
+                                <Card key={index} className="bg-secondary/50 p-4">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="h-9 w-9">
+                                            <AvatarFallback className="bg-primary text-primary-foreground"><User className="h-5 w-5" /></AvatarFallback>
+                                        </Avatar>
+                                        <p className="font-medium text-foreground">{investor.name}</p>
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </TabsContent>
+                  </Tabs>
+                </CardContent>
+              </Card>
+
             </div>
             <div className="lg:col-span-2">
-              <Card className="shadow-lg">
+              <Card className="sticky top-24 shadow-lg">
                 <CardHeader>
                   <CardTitle className="font-headline text-2xl">Simulador de Inversión</CardTitle>
                 </CardHeader>
