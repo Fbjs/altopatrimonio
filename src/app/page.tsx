@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect, type SVGProps } from "react";
+import React, { useState, useEffect, useRef, type SVGProps } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -46,6 +46,35 @@ import { Skeleton } from "@/components/ui/skeleton";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
 import Autoplay from "embla-carousel-autoplay";
+
+const useAnimateOnScroll = (options?: IntersectionObserverInit) => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const ref = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setIsIntersecting(true);
+        if (ref.current) {
+          observer.unobserve(ref.current);
+        }
+      }
+    }, options);
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => {
+      if (ref.current) {
+        observer.unobserve(ref.current);
+      }
+    };
+  }, [options]);
+
+  return [ref, isIntersecting] as const;
+};
+
 
 const valueProps = [
   {
@@ -278,7 +307,7 @@ export default function HomePage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 overflow-x-hidden">
         <HeroSection />
         <ValuePropSection />
         <ImpactSection />
@@ -360,7 +389,7 @@ function Logo(props: SVGProps<SVGSVGElement>) {
 
 function HeroSection() {
   return (
-    <section className="py-24 text-center sm:py-40">
+    <section className="py-24 text-center sm:py-40 animate-fade-in-down">
       <div className="container max-w-5xl">
         <h1 className="font-headline text-5xl font-bold tracking-tighter text-foreground sm:text-7xl md:text-8xl">
           Construye tu Futuro con Activos Tangibles
@@ -383,8 +412,9 @@ function HeroSection() {
 }
 
 function ValuePropSection() {
+  const [ref, isIntersecting] = useAnimateOnScroll({ threshold: 0.2 });
   return (
-    <section className="bg-background py-20 sm:py-32">
+    <section ref={ref} className={cn("bg-background py-20 sm:py-32 transition-all duration-700 ease-out", isIntersecting ? 'animate-fade-in-up opacity-100' : 'opacity-0 translate-y-10')}>
       <div className="container max-w-6xl">
         <div className="text-center">
           <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -395,10 +425,10 @@ function ValuePropSection() {
           </p>
         </div>
         <div className="mt-20 grid grid-cols-1 gap-12 md:grid-cols-3">
-          {valueProps.map((prop) => {
+          {valueProps.map((prop, index) => {
             const Icon = prop.icon;
             return(
-              <div key={prop.title} className="flex flex-col items-center text-center">
+              <div key={prop.title} className={cn("flex flex-col items-center text-center transition-all duration-500 ease-out", isIntersecting ? 'opacity-100' : 'opacity-0')} style={{transitionDelay: `${index * 150}ms`}}>
                 <div className="flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
                   <Icon className="h-10 w-10 text-primary" />
                 </div>
@@ -414,12 +444,13 @@ function ValuePropSection() {
 }
 
 function ImpactSection() {
+    const [ref, isIntersecting] = useAnimateOnScroll({ threshold: 0.3 });
   return (
-    <section className="bg-accent py-20 text-accent-foreground sm:py-24">
+    <section ref={ref} className={cn("bg-accent py-20 text-accent-foreground sm:py-24 transition-all duration-700 ease-out", isIntersecting ? 'animate-fade-in opacity-100' : 'opacity-0')}>
       <div className="container">
         <div className="grid grid-cols-1 gap-y-12 md:grid-cols-3 md:divide-x md:divide-border">
           {impactMetrics.map((metric, index) => (
-            <div key={metric.label} className="flex flex-col items-center text-center">
+            <div key={metric.label} className={cn("flex flex-col items-center text-center transition-all duration-500 ease-out", isIntersecting ? 'opacity-100' : 'opacity-0')} style={{transitionDelay: `${index * 200}ms`}}>
               <metric.icon className="h-12 w-12 text-primary" />
               <p className="mt-4 font-headline text-6xl font-bold">{metric.value}</p>
               <p className="mt-2 text-base font-medium uppercase tracking-wider opacity-80">{metric.label}</p>
@@ -432,13 +463,14 @@ function ImpactSection() {
 }
 
 function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void }) {
+  const [ref, isIntersecting] = useAnimateOnScroll({ threshold: 0.1 });
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
   }
   const autoplay = React.useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
 
   return (
-    <section id="projects" className="bg-background py-20 sm:py-32">
+    <section id="projects" ref={ref} className={cn("bg-background py-20 sm:py-32 transition-all duration-700 ease-out", isIntersecting ? 'animate-fade-in-up opacity-100' : 'opacity-0 translate-y-10')}>
       <div className="container max-w-7xl">
         <div className="text-center">
           <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -450,7 +482,7 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
         </div>
         <div className="mt-20 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
           {projects.map((project, index) => (
-            <Card key={index} className="group flex transform flex-col overflow-hidden shadow-lg transition-all duration-300 hover:shadow-2xl hover:-translate-y-2">
+            <Card key={index} className={cn("group flex transform flex-col overflow-hidden shadow-lg transition-all duration-500 ease-out hover:shadow-2xl hover:-translate-y-2", isIntersecting ? 'opacity-100 scale-100' : 'opacity-0 scale-95')} style={{transitionDelay: `${index * 150}ms`}}>
               <CardHeader className="relative p-0">
                 <Badge variant="secondary" className="absolute left-4 top-4 z-10">
                   <Clock className="mr-1.5 h-4 w-4" />
@@ -522,8 +554,9 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
 }
 
 function HowItWorksSection() {
+    const [ref, isIntersecting] = useAnimateOnScroll({ threshold: 0.2 });
     return (
-      <section id="how-it-works" className="py-20 sm:py-32 bg-card">
+      <section id="how-it-works" ref={ref} className={cn("py-20 sm:py-32 bg-card transition-all duration-700 ease-out", isIntersecting ? 'animate-fade-in-up opacity-100' : 'opacity-0 translate-y-10')}>
         <div className="container max-w-6xl">
           <div className="text-center">
             <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -539,7 +572,7 @@ function HowItWorksSection() {
               {investmentSteps.map((step, index) => {
                 const Icon = step.icon
                 return(
-                  <div key={step.title} className="relative flex flex-col items-center text-center">
+                  <div key={step.title} className={cn("relative flex flex-col items-center text-center transition-all duration-500 ease-out", isIntersecting ? 'opacity-100 scale-100' : 'opacity-0 scale-90')} style={{transitionDelay: `${index * 150}ms`}}>
                       <div className="absolute -top-16 z-10 hidden h-12 w-12 items-center justify-center rounded-full bg-card ring-8 ring-card md:flex">
                           <div className="flex h-12 w-12 items-center justify-center rounded-full border-2 border-primary bg-background">
                             <span className="font-headline text-2xl text-primary">{index + 1}</span>
@@ -561,8 +594,9 @@ function HowItWorksSection() {
   }
 
 function TestimonialsSection() {
+  const [ref, isIntersecting] = useAnimateOnScroll({ threshold: 0.1 });
   return (
-    <section className="py-20 sm:py-32">
+    <section ref={ref} className={cn("py-20 sm:py-32 transition-all duration-700 ease-out", isIntersecting ? 'animate-fade-in-up opacity-100' : 'opacity-0 translate-y-10')}>
       <div className="container max-w-4xl">
         <div className="text-center">
           <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -609,8 +643,9 @@ function TestimonialsSection() {
 }
 
 function EducationSection() {
+  const [ref, isIntersecting] = useAnimateOnScroll({ threshold: 0.2 });
   return (
-    <section id="education" className="bg-card py-20 sm:py-32">
+    <section id="education" ref={ref} className={cn("bg-card py-20 sm:py-32 transition-all duration-700 ease-out", isIntersecting ? 'animate-fade-in-up opacity-100' : 'opacity-0 translate-y-10')}>
       <div className="container max-w-6xl">
         <div className="text-center">
           <h2 className="font-headline text-4xl font-bold text-foreground md:text-5xl">
@@ -621,8 +656,8 @@ function EducationSection() {
           </p>
         </div>
         <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-3">
-          {educationArticles.map((article) => (
-            <Card key={article.title} className="group flex flex-col justify-between p-8 shadow-lg transition-shadow hover:shadow-xl">
+          {educationArticles.map((article, index) => (
+            <Card key={article.title} className={cn("group flex flex-col justify-between p-8 shadow-lg transition-all duration-500 ease-out hover:shadow-xl", isIntersecting ? 'opacity-100 scale-100' : 'opacity-0 scale-95')} style={{transitionDelay: `${index * 150}ms`}}>
                 <div>
                     <BookOpen className="mb-4 h-10 w-10 text-primary" />
                     <h3 className="font-headline text-2xl font-semibold text-foreground">{article.title}</h3>
@@ -641,13 +676,14 @@ function EducationSection() {
 }
 
 function CtaSection({ ctaText, isLoading }: { ctaText: string, isLoading: boolean }) {
+  const [ref, isIntersecting] = useAnimateOnScroll({ threshold: 0.3 });
   const getButtonLink = () => {
     if (isLoading) return "#";
     return ctaText.toLowerCase().includes("reunión") ? "/contact" : "/#projects";
   };
 
   return (
-    <section className="bg-primary py-20 text-center text-primary-foreground sm:py-24">
+    <section ref={ref} className={cn("bg-primary py-20 text-center text-primary-foreground sm:py-24 transition-all duration-700 ease-out", isIntersecting ? 'animate-fade-in opacity-100' : 'opacity-0')}>
       <div className="container max-w-4xl">
         <h2 className="font-headline text-4xl font-bold md:text-6xl">
           ¿Listo para Empezar a Construir tu Riqueza?
@@ -723,3 +759,5 @@ function Footer() {
         </footer>
     );
 }
+
+    
