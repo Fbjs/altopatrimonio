@@ -85,6 +85,7 @@ const impactMetrics = [
 
 const projects = [
   {
+    slug: "leaseback-parcelas-pucon",
     image: "https://placehold.co/600x400.png",
     hint: "mountain landscape",
     title: "Leaseback Parcelas Pucón",
@@ -98,6 +99,7 @@ const projects = [
     countdown: "1 día y 02:14:27 horas"
   },
   {
+    slug: "terreno-san-carlos-de-apoquindo",
     image: "https://placehold.co/600x400.png",
     hint: "green field",
     title: "Terreno San Carlos de Apoquindo",
@@ -111,6 +113,7 @@ const projects = [
     countdown: "4 días y 02:14:27 horas"
   },
   {
+    slug: "estancia-rupanco-etapa-ii",
     image: "https://placehold.co/600x400.png",
     hint: "volcano landscape",
     title: "Estancia Rupanco Etapa II",
@@ -124,6 +127,7 @@ const projects = [
     countdown: "4 días y 02:14:27 horas"
   },
   {
+    slug: "edificio-vista-montana",
     image: "https://placehold.co/600x400.png",
     hint: "modern apartment building",
     title: "Edificio Vista Montaña",
@@ -137,6 +141,7 @@ const projects = [
     countdown: "10 días y 08:30:00 horas"
   },
   {
+    slug: "oficinas-corporativas-el-golf",
     image: "https://placehold.co/600x400.png",
     hint: "commercial office space",
     title: "Oficinas Corporativas El Golf",
@@ -150,6 +155,7 @@ const projects = [
     countdown: "15 días y 12:00:00 horas"
   },
   {
+    slug: "centro-logistico-ruta-5",
     image: "https://placehold.co/600x400.png",
     hint: "warehouse logistics center",
     title: "Centro Logístico Ruta 5",
@@ -277,9 +283,9 @@ function Header() {
           </span>
         </Link>
         <nav className="hidden items-center gap-8 text-base md:flex">
-          <Link href="#projects" className="font-medium text-muted-foreground transition-colors hover:text-primary">Proyectos</Link>
-          <Link href="#how-it-works" className="font-medium text-muted-foreground transition-colors hover:text-primary">Cómo Funciona</Link>
-          <Link href="#education" className="font-medium text-muted-foreground transition-colors hover:text-primary">Aprende</Link>
+          <Link href="/#projects" className="font-medium text-muted-foreground transition-colors hover:text-primary">Proyectos</Link>
+          <Link href="/#how-it-works" className="font-medium text-muted-foreground transition-colors hover:text-primary">Cómo Funciona</Link>
+          <Link href="/#education" className="font-medium text-muted-foreground transition-colors hover:text-primary">Aprende</Link>
         </nav>
         <Button size="lg" className="hidden md:flex" asChild>
           <Link href="/contact">Contáctanos</Link>
@@ -466,8 +472,8 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
                     </div>
                   </div>
                 </div>
-                <Button onClick={onProjectInteract} className="mt-6 w-full text-lg font-bold">
-                  Invertir Ahora
+                <Button asChild onClick={onProjectInteract} className="mt-6 w-full text-lg font-bold">
+                  <Link href={`/projects/${project.slug}`}>Invertir Ahora</Link>
                 </Button>
               </CardContent>
             </Card>
@@ -644,5 +650,3 @@ function Footer() {
         </footer>
     );
 }
-
-    
