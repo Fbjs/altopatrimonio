@@ -62,9 +62,11 @@ export default function DashboardLayout({
             <SidebarFooter>
                  <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton href="#">
-                            <User />
-                            <span>Mi Perfil</span>
+                        <SidebarMenuButton asChild isActive={pathname === '/dashboard/profile'}>
+                            <Link href="/dashboard/profile">
+                                <User />
+                                <span>Mi Perfil</span>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
