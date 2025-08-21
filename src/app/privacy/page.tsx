@@ -3,120 +3,65 @@
 
 import React, { type SVGProps } from "react";
 import Link from 'next/link';
-import { z } from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/hooks/use-toast";
 import { Twitter, Linkedin } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { Input } from "@/components/ui/input";
 
-const formSchema = z.object({
-  name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
-  email: z.string().email({ message: "Por favor, introduce una dirección de correo electrónico válida." }),
-  message: z.string().min(10, { message: "El mensaje debe tener al menos 10 caracteres." }),
-});
-
-export default function ContactPage() {
-  const { toast } = useToast();
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      message: "",
-    },
-  });
-
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: "Mensaje Enviado",
-      description: "Gracias por contactarnos. Nos pondremos en contacto contigo pronto.",
-    });
-    form.reset();
-  }
-
+export default function PrivacyPolicyPage() {
   return (
     <div className="flex min-h-screen w-full flex-col bg-background">
       <Header />
       <main className="flex-1">
-        <div className="container mx-auto max-w-3xl py-20 sm:py-32">
+        <div className="container mx-auto max-w-4xl py-20 sm:py-32">
           <Card>
             <CardHeader>
-              <CardTitle className="font-headline text-4xl">Contáctanos</CardTitle>
+              <CardTitle className="font-headline text-4xl">Política de Privacidad</CardTitle>
               <CardDescription>
-                ¿Tienes alguna pregunta? Completa el formulario y nuestro equipo se pondrá en contacto contigo.
+                Última actualización: {new Date().toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nombre Completo</FormLabel>
-                        <FormControl>
-                          <Input placeholder="Juan Pérez" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Correo Electrónico</FormLabel>
-                        <FormControl>
-                          <Input placeholder="juan.perez@email.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="message"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Tu Mensaje</FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Escribe tu consulta aquí..."
-                            className="min-h-[150px]"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <Button type="submit" size="lg" className="w-full text-lg">
-                    Enviar Mensaje
-                  </Button>
-                </form>
-              </Form>
+            <CardContent className="prose prose-stone dark:prose-invert max-w-none text-muted-foreground">
+              <p>Esta Política de Privacidad describe Nuestras políticas y procedimientos sobre la recopilación, uso y divulgación de Tu información cuando utilizas el Servicio y te informa sobre Tus derechos de privacidad y cómo la ley te protege.</p>
+              <p>Utilizamos Tus datos personales para proporcionar y mejorar el Servicio. Al utilizar el Servicio, aceptas la recopilación y el uso de información de acuerdo con esta Política de Privacidad.</p>
+
+              <h2 className="font-headline text-2xl text-foreground mt-8">Recopilación y Uso de Tus Datos Personales</h2>
+              <h3 className="font-headline text-xl text-foreground mt-4">Tipos de Datos Recopilados</h3>
+              <h4>Datos Personales</h4>
+              <p>Mientras utilizas Nuestro Servicio, podemos pedirte que nos proporciones cierta información de identificación personal que se puede utilizar para contactarte o identificarte. La información de identificación personal puede incluir, entre otros:</p>
+              <ul>
+                <li>Dirección de correo electrónico</li>
+                <li>Nombre y apellido</li>
+                <li>Número de teléfono</li>
+                <li>Datos de uso</li>
+              </ul>
+
+              <h4>Datos de Uso</h4>
+              <p>Los Datos de Uso se recopilan automáticamente cuando se utiliza el Servicio.</p>
+              <p>Los Datos de Uso pueden incluir información como la dirección de Protocolo de Internet de Tu dispositivo (por ejemplo, dirección IP), tipo de navegador, versión del navegador, las páginas de nuestro Servicio que visitas, la hora y fecha de tu visita, el tiempo dedicado a esas páginas, identificadores únicos de dispositivos y otros datos de diagnóstico.</p>
+
+              <h2 className="font-headline text-2xl text-foreground mt-8">Uso de Tus Datos Personales</h2>
+              <p>La Compañía puede utilizar los Datos Personales para los siguientes propósitos:</p>
+              <ul>
+                <li><strong>Para proporcionar y mantener nuestro Servicio</strong>, incluido el seguimiento del uso de nuestro Servicio.</li>
+                <li><strong>Para gestionar Tu Cuenta:</strong> para gestionar Tu registro como usuario del Servicio. Los Datos Personales que proporciones pueden darte acceso a diferentes funcionalidades del Servicio que están disponibles para ti como usuario registrado.</li>
+                <li><strong>Para contactarte:</strong> Para contactarte por correo electrónico, llamadas telefónicas, SMS u otras formas equivalentes de comunicación electrónica.</li>
+                <li><strong>Para proporcionarte noticias,</strong> ofertas especiales e información general sobre otros bienes, servicios y eventos que ofrecemos.</li>
+              </ul>
+
+              <h2 className="font-headline text-2xl text-foreground mt-8">Seguridad de Tus Datos Personales</h2>
+              <p>La seguridad de Tus Datos Personales es importante para Nosotros, pero recuerda que ningún método de transmisión por Internet o método de almacenamiento electrónico es 100% seguro. Si bien nos esforzamos por utilizar medios comercialmente aceptables para proteger Tus Datos Personales, no podemos garantizar su seguridad absoluta.</p>
+
+              <h2 className="font-headline text-2xl text-foreground mt-8">Privacidad de los Niños</h2>
+              <p>Nuestro Servicio no se dirige a ninguna persona menor de 13 años. No recopilamos a sabiendas información de identificación personal de ninguna persona menor de 13 años.</p>
+
+              <h2 className="font-headline text-2xl text-foreground mt-8">Contáctanos</h2>
+              <p>Si tienes alguna pregunta sobre esta Política de Privacidad, puedes contactarnos:</p>
+              <ul>
+                  <li>Por correo electrónico: <a href="mailto:privacidad@altopatrimonio.com" className="text-primary hover:underline">privacidad@altopatrimonio.com</a></li>
+                  <li>Visitando esta página en nuestro sitio web: <Link href="/contact" className="text-primary hover:underline">/contact</Link></li>
+              </ul>
             </CardContent>
           </Card>
         </div>
