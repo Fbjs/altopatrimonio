@@ -67,9 +67,11 @@ export default function DashboardLayout({
                 <SidebarMenu>
                     {menuItems.map((item) => (
                         <SidebarMenuItem key={item.href}>
-                            <SidebarMenuButton href={item.href} isActive={pathname === item.href}>
-                                <item.icon />
-                                <span>{item.label}</span>
+                            <SidebarMenuButton asChild isActive={pathname === item.href}>
+                                <Link href={item.href}>
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </Link>
                             </SidebarMenuButton>
                         </SidebarMenuItem>
                     ))}
@@ -96,9 +98,11 @@ export default function DashboardLayout({
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton href="/">
-                            <LogOut />
-                            <span>Cerrar Sesión</span>
+                        <SidebarMenuButton asChild>
+                            <Link href="/">
+                                <LogOut />
+                                <span>Cerrar Sesión</span>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>
