@@ -237,7 +237,7 @@ function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 max-w-7xl items-center justify-between">
         <Link href="#" className="flex items-center gap-2">
-          <Landmark className="h-8 w-8 text-primary" />
+          <Logo className="h-8 w-auto text-primary" />
           <span className="font-headline text-3xl font-bold tracking-wide text-foreground">
             AltoPatrimonio
           </span>
@@ -252,6 +252,43 @@ function Header() {
     </header>
   );
 }
+
+function Logo(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      viewBox="0 0 162 108"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M54 0L108 27V54L54 27V0Z"
+        className="fill-primary"
+      />
+      <path
+        d="M0 27L54 54V81L0 54V27Z"
+        className="fill-primary"
+      />
+      <path
+        d="M54 54L108 81V108L54 81V54Z"
+        className="fill-primary"
+      />
+      <path
+        d="M108 27L54 0V27L108 54V27Z"
+        className="fill-current"
+      />
+      <path
+        d="M54 54L0 27V54L54 81V54Z"
+        className="fill-current"
+      />
+      <path
+        d="M108 81L54 54V81L108 108V81Z"
+        className="fill-current"
+      />
+    </svg>
+  );
+}
+
 
 function HeroSection() {
   return (
@@ -310,14 +347,14 @@ function ValuePropSection() {
 
 function ImpactSection() {
   return (
-    <section className="bg-card py-20 sm:py-24">
+    <section className="bg-accent py-20 sm:py-24 text-accent-foreground">
       <div className="container">
         <div className="grid grid-cols-1 gap-y-12 md:grid-cols-3 md:divide-x md:divide-border">
           {impactMetrics.map((metric, index) => (
             <div key={metric.label} className="flex flex-col items-center text-center">
-              <metric.icon className="h-12 w-12 text-accent" />
-              <p className="mt-4 font-headline text-6xl font-bold text-foreground">{metric.value}</p>
-              <p className="mt-2 text-base font-medium uppercase tracking-wider text-muted-foreground">{metric.label}</p>
+              <metric.icon className="h-12 w-12 text-primary" />
+              <p className="mt-4 font-headline text-6xl font-bold">{metric.value}</p>
+              <p className="mt-2 text-base font-medium uppercase tracking-wider opacity-80">{metric.label}</p>
             </div>
           ))}
         </div>
@@ -430,7 +467,7 @@ function TestimonialsSection() {
               <CarouselItem key={index}>
                 <Card className="border-border bg-card p-8 shadow-lg md:p-12">
                   <CardContent className="p-0 text-center">
-                    <div className="flex justify-center text-accent">
+                    <div className="flex justify-center text-primary">
                       {[...Array(5)].map((_, i) => <Star key={i} className="h-6 w-6 fill-current" />)}
                     </div>
                     <p className="mt-6 text-xl italic text-foreground">"{testimonial.quote}"</p>
@@ -503,7 +540,7 @@ function CtaSection({ ctaText, isLoading }: { ctaText: string, isLoading: boolea
             {isLoading ? (
                 <Skeleton className="mx-auto h-14 w-56 bg-white/20" />
             ) : (
-                <Button size="lg" className="bg-accent text-lg font-bold text-accent-foreground hover:bg-accent/90">
+                <Button size="lg" variant="secondary" className="bg-accent text-lg font-bold text-accent-foreground hover:bg-accent/90">
                     {ctaText}
                 </Button>
             )}
@@ -519,7 +556,7 @@ function Footer() {
             <div className="container mx-auto max-w-7xl px-4 py-8 sm:py-12">
                 <div className="flex flex-col items-center justify-between gap-6 md:flex-row">
                     <div className="flex items-center gap-3">
-                        <Landmark className="h-7 w-7 text-primary" />
+                        <Logo className="h-7 w-auto text-primary" />
                         <span className="font-headline text-2xl font-bold text-foreground">AltoPatrimonio</span>
                     </div>
                     <p className="text-center text-sm text-muted-foreground">&copy; {new Date().getFullYear()} AltoPatrimonio Invest. Todos los derechos reservados.</p>
