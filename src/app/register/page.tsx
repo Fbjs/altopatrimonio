@@ -27,6 +27,9 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Twitter, Linkedin } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
+
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -51,14 +54,21 @@ export default function RegisterPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: "Cuenta Creada",
-      description: "Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.",
-    });
-    form.reset();
-    router.push('/login');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await createUserWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Cuenta Creada",
+        description: "Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.",
+      });
+      router.push('/login');
+    } catch (error: any) {
+      toast({
+        title: "Error al crear la cuenta",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -128,8 +138,8 @@ export default function RegisterPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" size="lg" className="w-full text-lg">
-                    Crear mi Cuenta
+                  <Button type="submit" size="lg" className="w-full text-lg" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? 'Creando cuenta...' : 'Crear mi Cuenta'}
                   </Button>
                 </form>
               </Form>

@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Twitter, Linkedin } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "@/lib/firebase";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Por favor, introduce una dirección de correo electrónico válida." }),
@@ -44,14 +46,21 @@ export default function LoginPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    toast({
-      title: "Inicio de Sesión Exitoso",
-      description: "¡Bienvenido de vuelta!",
-    });
-    form.reset();
-    router.push('/dashboard');
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    try {
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      toast({
+        title: "Inicio de Sesión Exitoso",
+        description: "¡Bienvenido de vuelta!",
+      });
+      router.push('/dashboard');
+    } catch (error: any) {
+      toast({
+        title: "Error al iniciar sesión",
+        description: "El correo electrónico o la contraseña son incorrectos.",
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -95,8 +104,8 @@ export default function LoginPage() {
                       </FormItem>
                     )}
                   />
-                  <Button type="submit" size="lg" className="w-full text-lg">
-                    Iniciar Sesión
+                  <Button type="submit" size="lg" className="w-full text-lg" disabled={form.formState.isSubmitting}>
+                    {form.formState.isSubmitting ? 'Iniciando sesión...' : 'Iniciar Sesión'}
                   </Button>
                 </form>
               </Form>
@@ -199,7 +208,7 @@ function Footer() {
                         <Input 
                           type="email" 
                           placeholder="Tu correo electrónico" 
-                          className="flex-1" 
+                          className="flex-1"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
