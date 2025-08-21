@@ -270,7 +270,7 @@ function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 max-w-7xl items-center justify-between">
-        <Link href="#" className="flex items-center gap-2">
+        <Link href="/" className="flex items-center gap-2">
           <Logo className="h-8 w-auto text-primary" />
           <span className="font-headline text-3xl font-bold tracking-wide text-foreground">
             AltoPatrimonio
@@ -281,7 +281,9 @@ function Header() {
           <Link href="#how-it-works" className="font-medium text-muted-foreground transition-colors hover:text-primary">Cómo Funciona</Link>
           <Link href="#education" className="font-medium text-muted-foreground transition-colors hover:text-primary">Aprende</Link>
         </nav>
-        <Button size="lg" className="hidden md:flex">Contáctanos</Button>
+        <Button size="lg" className="hidden md:flex" asChild>
+          <Link href="/contact">Contáctanos</Link>
+        </Button>
       </div>
     </header>
   );
@@ -381,7 +383,7 @@ function ValuePropSection() {
 
 function ImpactSection() {
   return (
-    <section className="bg-accent py-20 sm:py-24 text-accent-foreground">
+    <section className="bg-accent py-20 text-accent-foreground sm:py-24">
       <div className="container">
         <div className="grid grid-cols-1 gap-y-12 md:grid-cols-3 md:divide-x md:divide-border">
           {impactMetrics.map((metric, index) => (
@@ -455,17 +457,17 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
                   <div className="mt-6">
                     <div className="mb-2 flex justify-between text-sm">
                       <span className="text-muted-foreground">Recaudado</span>
-                      <span className="text-muted-foreground">A recaudar</span>
+                      <span className="text-muted-foreground">Faltante</span>
                     </div>
                     <Progress value={(project.raised / project.goal) * 100} className="h-2" />
                     <div className="mt-2 flex justify-between text-sm font-semibold text-foreground">
-                      <span>{formatCurrency(project.raised)} ({((project.raised / project.goal) * 100).toFixed(2)}%)</span>
+                      <span>{formatCurrency(project.raised)} ({((project.raised / project.goal) * 100).toFixed(0)}%)</span>
                        <span>{formatCurrency(project.goal - project.raised)}</span>
                     </div>
                   </div>
                 </div>
                 <Button onClick={onProjectInteract} className="mt-6 w-full text-lg font-bold">
-                  ¡Quiero Invertir!
+                  Invertir Ahora
                 </Button>
               </CardContent>
             </Card>
@@ -597,9 +599,9 @@ function EducationSection() {
 
 function CtaSection({ ctaText, isLoading }: { ctaText: string, isLoading: boolean }) {
   return (
-    <section className="bg-primary py-20 text-center sm:py-24">
+    <section className="bg-primary py-20 text-center text-primary-foreground sm:py-24">
       <div className="container max-w-4xl">
-        <h2 className="font-headline text-4xl font-bold text-primary-foreground md:text-6xl">
+        <h2 className="font-headline text-4xl font-bold md:text-6xl">
           ¿Listo para Empezar a Construir tu Riqueza?
         </h2>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-primary-foreground/80">
@@ -609,7 +611,7 @@ function CtaSection({ ctaText, isLoading }: { ctaText: string, isLoading: boolea
             {isLoading ? (
                 <Skeleton className="mx-auto h-14 w-56 bg-white/20" />
             ) : (
-                <Button size="lg" variant="secondary" className="bg-accent text-lg font-bold text-accent-foreground hover:bg-accent/90">
+                <Button size="lg" variant="secondary" className="bg-background text-lg font-bold text-primary hover:bg-background/90">
                     {ctaText}
                 </Button>
             )}
