@@ -43,6 +43,7 @@ import { getIntelligentCTA } from "@/ai/flows/intelligent-cta";
 import { Skeleton } from "@/components/ui/skeleton";
 import Link from 'next/link';
 import { cn } from "@/lib/utils";
+import Autoplay from "embla-carousel-autoplay";
 
 const valueProps = [
   {
@@ -427,6 +428,7 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
   }
+  const autoplay = React.useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
 
   return (
     <section id="projects" className="bg-background py-20 sm:py-32">
@@ -447,7 +449,7 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
                   <Clock className="mr-1.5 h-4 w-4" />
                   {project.countdown}
                 </Badge>
-                <Carousel className="w-full">
+                <Carousel className="w-full" plugins={[autoplay.current]} opts={{loop: true}}>
                     <CarouselContent>
                         {project.images.map((image, idx) => (
                             <CarouselItem key={idx}>

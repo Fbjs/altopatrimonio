@@ -19,6 +19,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
+import Autoplay from "embla-carousel-autoplay";
 
 
 const project = {
@@ -60,6 +61,7 @@ const formatCurrency = (value: number) => {
 
 export default function ProjectDetailPage() {
   const [investmentAmount, setInvestmentAmount] = useState(project.maxInvestment);
+  const autoplay = React.useRef(Autoplay({ delay: 5000, stopOnInteraction: true }));
 
   const expectedGain = investmentAmount * (parseFloat(project.annualizedReturn) / 100) * (parseInt(project.term) / 12);
 
@@ -78,7 +80,7 @@ export default function ProjectDetailPage() {
             <div className="lg:col-span-3">
               <Card className="overflow-hidden shadow-lg">
                 <CardContent className="p-0">
-                  <Carousel>
+                  <Carousel plugins={[autoplay.current]} opts={{loop: true}}>
                     <CarouselContent>
                       {project.images.map((image, index) => (
                         <CarouselItem key={index}>
