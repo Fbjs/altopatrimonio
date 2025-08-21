@@ -70,9 +70,11 @@ export default function DashboardLayout({
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton href="#">
-                            <Settings />
-                            <span>Configuración</span>
+                        <SidebarMenuButton asChild isActive={pathname === '/dashboard/settings'}>
+                            <Link href="/dashboard/settings">
+                                <Settings />
+                                <span>Configuración</span>
+                            </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
