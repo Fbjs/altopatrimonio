@@ -200,7 +200,7 @@ export default function ProjectsPage() {
                               </div>
                             </div>
                             <Button asChild className="mt-6 w-full text-lg font-bold">
-                               <Link href={`/projects/${project.slug}`}>¿Quiero Invertir?</Link>
+                               <Link href={`/projects/${project.slug}`}>Ver Proyecto</Link>
                             </Button>
                           </CardContent>
                         </Card>

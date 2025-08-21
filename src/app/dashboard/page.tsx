@@ -76,7 +76,7 @@ export default function DashboardPage() {
                                 <h3 className="text-xl font-semibold text-foreground">Sin Inversiones activas</h3>
                                 <p className="mt-2 max-w-xs text-muted-foreground">Todavía no tienes inversiones activas. Explora los proyectos disponibles y comienza a invertir.</p>
                                 <Button asChild className="mt-6">
-                                    <Link href="/#projects">Ir a proyectos disponibles</Link>
+                                    <Link href="/dashboard/projects">Ir a proyectos disponibles</Link>
                                 </Button>
                             </div>
                         </TabsContent>

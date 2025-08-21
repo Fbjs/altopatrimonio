@@ -72,7 +72,7 @@ export default function ProjectDetailPage() {
       <main className="flex-1 bg-secondary/30">
         <div className="container mx-auto max-w-7xl py-12 sm:py-20">
           <div className="mb-8">
-            <Link href="/#projects" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary">
+            <Link href="/dashboard/projects" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary">
               <ArrowLeft className="h-4 w-4" />
               Volver a Proyectos
             </Link>
@@ -202,7 +202,7 @@ export default function ProjectDetailPage() {
                       <p className="font-headline text-3xl font-bold text-primary">{formatCurrency(expectedGain)}</p>
                     </div>
                     <Button size="lg" className="w-full text-lg" asChild>
-                      <Link href="/dashboard/projects">¡Quiero Invertir!</Link>
+                      <Link href="/dashboard/verification">¡Quiero Invertir!</Link>
                     </Button>
                   </div>
                 </CardContent>
