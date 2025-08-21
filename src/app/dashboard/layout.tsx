@@ -3,6 +3,7 @@
 
 import React, { type SVGProps } from "react";
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
     Sidebar,
     SidebarProvider,
@@ -44,6 +45,13 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
+  const menuItems = [
+    { href: "/dashboard", icon: Home, label: "Inicio" },
+    { href: "/dashboard/projects", icon: Briefcase, label: "Proyectos" },
+  ];
+
   return (
     <SidebarProvider>
         <Sidebar>
@@ -57,18 +65,14 @@ export default function DashboardLayout({
             </SidebarHeader>
             <SidebarContent>
                 <SidebarMenu>
-                    <SidebarMenuItem>
-                        <SidebarMenuButton href="/dashboard" isActive>
-                            <Home />
-                            <span>Inicio</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    <SidebarMenuItem>
-                         <SidebarMenuButton href="#">
-                            <Briefcase />
-                            <span>Proyectos</span>
-                        </SidebarMenuButton>
-                    </SidebarMenuItem>
+                    {menuItems.map((item) => (
+                        <SidebarMenuItem key={item.href}>
+                            <SidebarMenuButton href={item.href} isActive={pathname === item.href}>
+                                <item.icon />
+                                <span>{item.label}</span>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
                 </SidebarMenu>
             </SidebarContent>
             <SidebarFooter>
@@ -108,7 +112,7 @@ export default function DashboardLayout({
                 </div>
                 <div className="flex items-center gap-4">
                     <Button asChild>
-                        <Link href="/#projects">¡Quiero Invertir!</Link>
+                        <Link href="/dashboard/projects">¡Quiero Invertir!</Link>
                     </Button>
                     <Avatar>
                         <AvatarImage src="https://placehold.co/40x40.png" alt="User" data-ai-hint="person portrait"/>

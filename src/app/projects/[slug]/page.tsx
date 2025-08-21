@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, type SVGProps } from "react";
@@ -201,7 +202,7 @@ export default function ProjectDetailPage() {
                       <p className="font-headline text-3xl font-bold text-primary">{formatCurrency(expectedGain)}</p>
                     </div>
                     <Button size="lg" className="w-full text-lg" asChild>
-                      <Link href="/register">¡Quiero Invertir!</Link>
+                      <Link href="/dashboard/projects">¡Quiero Invertir!</Link>
                     </Button>
                   </div>
                 </CardContent>

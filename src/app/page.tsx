@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, type SVGProps } from "react";
@@ -509,7 +510,7 @@ function ProjectsSection({ onProjectInteract }: { onProjectInteract: () => void 
                   </div>
                 </div>
                 <Button asChild onClick={onProjectInteract} className="mt-6 w-full text-lg font-bold">
-                  <Link href={`/projects/${project.slug}`}>Invertir Ahora</Link>
+                  <Link href={`/projects/${project.slug}`}>¿Quiero Invertir?</Link>
                 </Button>
               </CardContent>
             </Card>
