@@ -1,0 +1,125 @@
+
+"use client";
+
+import React, { type SVGProps } from "react";
+import Link from 'next/link';
+import {
+    Sidebar,
+    SidebarProvider,
+    SidebarTrigger,
+    SidebarInset,
+    SidebarHeader,
+    SidebarContent,
+    SidebarMenu,
+    SidebarMenuItem,
+    SidebarMenuButton,
+    SidebarFooter
+} from "@/components/ui/sidebar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Home, Briefcase, User, Settings, LifeBuoy, LogOut } from "lucide-react";
+
+
+function Logo(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      viewBox="0 0 162 108"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path d="M54 0L108 27V54L54 27V0Z" className="fill-primary" />
+      <path d="M0 27L54 54V81L0 54V27Z" className="fill-primary" />
+      <path d="M54 54L108 81V108L54 81V54Z" className="fill-primary" />
+      <path d="M108 27L54 0V27L108 54V27Z" className="fill-current" />
+      <path d="M54 54L0 27V54L54 81V54Z" className="fill-current" />
+      <path d="M108 81L54 54V81L108 108V81Z" className="fill-current" />
+    </svg>
+  );
+}
+
+
+export default function DashboardLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <SidebarProvider>
+        <Sidebar>
+            <SidebarHeader>
+                <div className="flex items-center gap-2">
+                    <Logo className="h-7 w-auto text-primary" />
+                    <span className="font-headline text-2xl font-bold tracking-wide text-foreground">
+                        AltoPatrimonio
+                    </span>
+                </div>
+            </SidebarHeader>
+            <SidebarContent>
+                <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton href="/dashboard" isActive>
+                            <Home />
+                            <span>Inicio</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                         <SidebarMenuButton href="#">
+                            <Briefcase />
+                            <span>Proyectos</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarContent>
+            <SidebarFooter>
+                 <SidebarMenu>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton href="#">
+                            <User />
+                            <span>Mi Perfil</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton href="#">
+                            <Settings />
+                            <span>Configuración</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton href="#">
+                            <LifeBuoy />
+                            <span>Soporte</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                    <SidebarMenuItem>
+                        <SidebarMenuButton href="/">
+                            <LogOut />
+                            <span>Cerrar Sesión</span>
+                        </SidebarMenuButton>
+                    </SidebarMenuItem>
+                </SidebarMenu>
+            </SidebarFooter>
+        </Sidebar>
+        <SidebarInset>
+            <header className="flex h-16 w-full items-center justify-between border-b bg-background px-6">
+                <div className="flex items-center gap-4">
+                     <SidebarTrigger className="md:hidden" />
+                     <h2 className="text-xl font-semibold">Dashboard</h2>
+                </div>
+                <div className="flex items-center gap-4">
+                    <Button asChild>
+                        <Link href="/#projects">¡Quiero Invertir!</Link>
+                    </Button>
+                    <Avatar>
+                        <AvatarImage src="https://placehold.co/40x40.png" alt="User" data-ai-hint="person portrait"/>
+                        <AvatarFallback>JP</AvatarFallback>
+                    </Avatar>
+                </div>
+            </header>
+            <main className="flex-1 overflow-y-auto bg-secondary/30 p-6">
+                {children}
+            </main>
+        </SidebarInset>
+    </SidebarProvider>
+  );
+}

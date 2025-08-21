@@ -1,7 +1,9 @@
+
 "use client";
 
 import React, { type SVGProps } from "react";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -32,6 +34,7 @@ const formSchema = z.object({
 
 export default function LoginPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -47,7 +50,7 @@ export default function LoginPage() {
       description: "¡Bienvenido de vuelta!",
     });
     form.reset();
-    // Aquí iría la lógica para redirigir al dashboard
+    router.push('/dashboard');
   }
 
   return (

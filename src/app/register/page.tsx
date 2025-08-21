@@ -1,7 +1,9 @@
+
 "use client";
 
 import React, { type SVGProps } from "react";
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -37,6 +39,7 @@ const formSchema = z.object({
 
 export default function RegisterPage() {
   const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -54,7 +57,7 @@ export default function RegisterPage() {
       description: "Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.",
     });
     form.reset();
-    // Aquí iría la lógica para redirigir al login o al dashboard
+    router.push('/login');
   }
 
   return (
