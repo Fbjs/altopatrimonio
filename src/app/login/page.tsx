@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, type SVGProps } from "react";
+import React, { useEffect, type SVGProps, Suspense } from "react";
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from "zod";
@@ -27,13 +27,14 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Twitter, Linkedin } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Por favor, introduce una dirección de correo electrónico válida." }),
   password: z.string().min(8, { message: "La contraseña debe tener al menos 8 caracteres." }),
 });
 
-export default function LoginPage() {
+function LoginPageInternal() {
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -44,8 +45,10 @@ export default function LoginPage() {
         title: "Correo Verificado",
         description: "Tu correo ha sido verificado con éxito. ¡Ya puedes iniciar sesión!",
       });
+      // Clean the URL
+      router.replace('/login', { scroll: false });
     }
-  }, [searchParams, toast]);
+  }, [searchParams, toast, router]);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -141,6 +144,45 @@ export default function LoginPage() {
       <Footer />
     </div>
   );
+}
+
+function LoginPageSkeleton() {
+    return (
+        <div className="flex min-h-screen w-full flex-col bg-background">
+            <Header />
+            <main className="flex-1">
+                <div className="container mx-auto max-w-md py-20 sm:py-32">
+                    <Card>
+                        <CardHeader>
+                             <Skeleton className="h-10 w-48" />
+                             <Skeleton className="h-5 w-64 mt-2" />
+                        </CardHeader>
+                        <CardContent className="space-y-8">
+                            <div className="space-y-2">
+                                <Skeleton className="h-5 w-24" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                            <div className="space-y-2">
+                                <Skeleton className="h-5 w-24" />
+                                <Skeleton className="h-10 w-full" />
+                            </div>
+                            <Skeleton className="h-12 w-full" />
+                            <Skeleton className="h-5 w-52 mx-auto" />
+                        </CardContent>
+                    </Card>
+                </div>
+            </main>
+            <Footer />
+        </div>
+    )
+}
+
+export default function LoginPage() {
+    return (
+        <Suspense fallback={<LoginPageSkeleton />}>
+            <LoginPageInternal />
+        </Suspense>
+    );
 }
 
 function Header() {
@@ -246,3 +288,5 @@ function Footer() {
         </footer>
     );
 }
+
+    
