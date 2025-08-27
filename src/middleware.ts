@@ -1,8 +1,6 @@
 
 import { NextResponse, type NextRequest } from 'next/server';
 import { jwtVerify, type JWTPayload } from 'jose';
-import connectToDatabase from '@/lib/db';
-import User from '@/models/User';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -24,61 +22,46 @@ async function verifyToken(token: string): Promise<JWTPayload | null> {
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const token = request.cookies.get('token')?.value;
+    
+    // Allow API routes for auth and verification to pass through without a token.
+    if (pathname.startsWith('/api/auth/')) {
+        return NextResponse.next();
+    }
+
     const payload = token ? await verifyToken(token) : null;
     
     const requestHeaders = new Headers(request.headers);
     if (payload?.userId) {
         requestHeaders.set('x-user-id', payload.userId as string);
+        requestHeaders.set('x-user-role', payload.role as string);
     }
     
-    // Proteger rutas de API de administración
-    if (pathname.startsWith('/api/admin')) {
-        if (!payload || !payload.userId) {
-             return new NextResponse(JSON.stringify({ message: 'No autorizado: Se requiere token' }), { status: 401, headers: { 'Content-Type': 'application/json' } });
-        }
-        
-        await connectToDatabase();
-        const user = await User.findById(payload.userId);
-        
-        if (!user || user.role !== 'admin') {
-            return new NextResponse(JSON.stringify({ message: 'Acceso denegado: Se requiere rol de administrador' }), { status: 403, headers: { 'Content-Type': 'application/json' } });
-        }
-        
-        return NextResponse.next({ request: { headers: requestHeaders } });
-    }
-
-    if (pathname.startsWith('/api/')) {
-        return NextResponse.next({ request: { headers: requestHeaders } });
-    }
-
-    const isPublicPath = PUBLIC_PATHS.some(path => pathname === path || (path !== '/' && pathname.startsWith(path) && pathname.charAt(path.length) === '/'));
+    const isPublicPath = PUBLIC_PATHS.some(path => pathname === path);
+    const isDashboardPath = pathname.startsWith('/dashboard');
 
     if (payload) {
+        // If logged in, redirect from login/register to dashboard
         if (pathname === '/login' || pathname === '/register') {
             return NextResponse.redirect(new URL('/dashboard', request.url));
         }
-
-        // Proteger rutas de UI de administración
-        if (pathname.startsWith('/dashboard/admin')) {
-             await connectToDatabase();
-             const user = await User.findById(payload.userId);
-             if (!user || user.role !== 'admin') {
-                 return NextResponse.redirect(new URL('/dashboard', request.url));
-             }
+        // If trying to access admin but not admin, redirect to dashboard
+        if (pathname.startsWith('/dashboard/admin') && payload.role !== 'admin') {
+            return NextResponse.redirect(new URL('/dashboard', request.url));
         }
-        
-        return NextResponse.next();
+    } else {
+        // If not logged in and trying to access a protected path, redirect to login
+        if (isDashboardPath) {
+            const loginUrl = new URL('/login', request.url);
+            loginUrl.searchParams.set('next', pathname);
+            return NextResponse.redirect(loginUrl);
+        }
     }
 
-    if (!isPublicPath) {
-        const loginUrl = new URL('/login', request.url);
-        loginUrl.searchParams.set('next', pathname);
-        const response = NextResponse.redirect(loginUrl);
-        response.cookies.delete('token');
-        return response;
-    }
-
-    return NextResponse.next();
+    return NextResponse.next({
+      request: {
+        headers: requestHeaders,
+      },
+    });
 }
 
 export const config = {

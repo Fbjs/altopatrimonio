@@ -35,8 +35,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Credenciales inválidas.' }, { status: 401 });
     }
 
-    // Create JWT token
-    const token = await new SignJWT({ userId: user._id, email: user.email })
+    // Create JWT token including the user role
+    const token = await new SignJWT({ userId: user._id, email: user.email, role: user.role })
       .setProtectedHeader({ alg: 'HS256' })
       .setIssuedAt()
       .setExpirationTime('1h')
