@@ -8,61 +8,55 @@ if (!JWT_SECRET) {
 }
 const secretKey = new TextEncoder().encode(JWT_SECRET);
 
+const PUBLIC_PATHS = ['/login', '/register', '/api/auth/login', '/api/auth/register', '/api/auth/verify'];
+const DASHBOARD_PATH = '/dashboard';
+
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value;
+  const { pathname } = request.nextUrl;
 
-  // Rutas públicas que no requieren autenticación
-  const publicPaths = ['/login', '/register', '/api/auth/login', '/api/auth/register', '/api/auth/verify'];
+  const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
 
-  const isPublicPath = publicPaths.some(path => request.nextUrl.pathname.startsWith(path));
-
-  // Si se accede a una ruta pública y NO hay token, permitir el acceso.
-  if (isPublicPath && !token) {
-    return NextResponse.next();
-  }
-
-  // Si se accede a una ruta pública y SÍ hay token, redirigir al dashboard.
-  if (isPublicPath && token) {
+  // Verify token
+  let payload;
+  if (token) {
     try {
-      await jwtVerify(token, secretKey);
-      const url = request.nextUrl.clone();
-      url.pathname = '/dashboard';
-      return NextResponse.redirect(url);
+      const { payload: verifiedPayload } = await jwtVerify(token, secretKey);
+      payload = verifiedPayload;
     } catch (err) {
-      // Si el token es inválido, permitir que se quede en la página pública (login/register).
-       return NextResponse.next();
+      // Invalid token, treat as no token
     }
   }
-  
-  // A partir de aquí, son rutas protegidas.
-  if (!token) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return NextResponse.redirect(url);
-  }
 
-  try {
-    const { payload } = await jwtVerify(token, secretKey);
+  // 1. User has a valid token
+  if (payload) {
+    // If user is on a public path (login/register), redirect to dashboard
+    if (isPublicPath) {
+      const url = request.nextUrl.clone();
+      url.pathname = DASHBOARD_PATH;
+      return NextResponse.redirect(url);
+    }
     
-    // Adjuntar el ID y email de usuario a la solicitud para que las rutas API puedan usarlo
+    // If user is on a protected path, add headers and proceed
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-user-id', payload.userId as string);
     requestHeaders.set('x-user-email', payload.email as string);
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
 
-    return NextResponse.next({
-      request: {
-        headers: requestHeaders,
-      },
-    });
-
-  } catch (err) {
-    // Si el token es inválido en una ruta protegida, borrar la cookie y redirigir a login.
+  // 2. User does NOT have a valid token
+  // If trying to access a protected route, redirect to login
+  if (!isPublicPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     const response = NextResponse.redirect(url);
+    // Ensure old invalid cookies are cleared
     response.cookies.set('token', '', { maxAge: -1 });
     return response;
   }
+  
+  // If on a public path without a token, allow access
+  return NextResponse.next();
 }
 
 export const config = {
