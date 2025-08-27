@@ -21,13 +21,16 @@ export async function POST(req: Request) {
 
     const hashedPassword = await bcrypt.hash(password, 12);
     const emailVerificationToken = nanoid(32);
+    
+    // Asignar rol de admin si el email es el especificado
+    const userRole = email === 'fibaceta.arce@gmail.com' ? 'admin' : 'user';
 
     const newUser = new User({
       name,
       email,
       password: hashedPassword,
       emailVerificationToken,
-      role: 'user', // Asignar rol por defecto
+      role: userRole,
     });
 
     await newUser.save();
