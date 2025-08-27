@@ -17,45 +17,45 @@ export async function middleware(request: NextRequest) {
 
   const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
 
-  // Verify token
+  // 1. Try to verify the token
   let payload;
   if (token) {
     try {
       const { payload: verifiedPayload } = await jwtVerify(token, secretKey);
       payload = verifiedPayload;
     } catch (err) {
-      // Invalid token, treat as no token
+      // Token is invalid. Clear it.
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.set('token', '', { maxAge: -1 });
+      return response;
     }
   }
 
-  // 1. User has a valid token
+  // 2. User has a valid token
   if (payload) {
-    // If user is on a public path (login/register), redirect to dashboard
+    // If user is on a public path (like /login), redirect them to dashboard
     if (isPublicPath) {
       const url = request.nextUrl.clone();
       url.pathname = DASHBOARD_PATH;
       return NextResponse.redirect(url);
     }
     
-    // If user is on a protected path, add headers and proceed
+    // If user is on a protected path, add user data to headers and allow access
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set('x-user-id', payload.userId as string);
     requestHeaders.set('x-user-email', payload.email as string);
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
-  // 2. User does NOT have a valid token
-  // If trying to access a protected route, redirect to login
+  // 3. User does NOT have a token
+  // If they are trying to access a protected route, redirect to login
   if (!isPublicPath) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
-    const response = NextResponse.redirect(url);
-    // Ensure old invalid cookies are cleared
-    response.cookies.set('token', '', { maxAge: -1 });
-    return response;
+    return NextResponse.redirect(url);
   }
   
-  // If on a public path without a token, allow access
+  // Otherwise, if they are on a public path without a token, allow access
   return NextResponse.next();
 }
 
