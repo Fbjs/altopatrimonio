@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -31,6 +31,8 @@ const passwordFormSchema = z.object({
 export default function ProfilePage() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(true);
+    const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const profileForm = useForm<z.infer<typeof profileFormSchema>>({
         resolver: zodResolver(profileFormSchema),
@@ -49,6 +51,10 @@ export default function ProfilePage() {
         },
     });
 
+    const getInitials = (name: string) => {
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+
     useEffect(() => {
         async function fetchProfile() {
             try {
@@ -59,6 +65,9 @@ export default function ProfilePage() {
                 }
                 const data = await res.json();
                 profileForm.reset({ name: data.name, email: data.email });
+                if (data.avatar) {
+                    setAvatarPreview(data.avatar);
+                }
             } catch (error: any) {
                 toast({
                     title: "Error",
@@ -73,12 +82,27 @@ export default function ProfilePage() {
     }, [profileForm, toast]);
 
 
+    const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setAvatarPreview(reader.result as string);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     async function onProfileSubmit(values: z.infer<typeof profileFormSchema>) {
         try {
+            const payload = {
+                ...values,
+                avatar: avatarPreview,
+            };
             const res = await fetch('/api/user/profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(values),
+                body: JSON.stringify(payload),
             });
             const data = await res.json();
             if (!res.ok) {
@@ -146,11 +170,12 @@ export default function ProfilePage() {
                         <CardContent className="space-y-6">
                             <div className="flex items-center gap-6">
                                 <Avatar className="h-20 w-20">
-                                    <AvatarImage src="https://placehold.co/80x80.png" alt="User" data-ai-hint="person portrait"/>
-                                    <AvatarFallback>JP</AvatarFallback>
+                                    <AvatarImage src={avatarPreview || undefined} alt="User" data-ai-hint="person portrait"/>
+                                    <AvatarFallback>{getInitials(profileForm.getValues("name") || "  ")}</AvatarFallback>
                                 </Avatar>
                                 <div className="space-y-2">
-                                     <Button type="button">Cambiar Foto</Button>
+                                     <Button type="button" onClick={() => fileInputRef.current?.click()}>Cambiar Foto</Button>
+                                     <Input type="file" ref={fileInputRef} onChange={handleAvatarChange} accept="image/png, image/jpeg, image/gif" className="hidden" />
                                      <p className="text-xs text-muted-foreground">JPG, GIF o PNG. Tamaño máximo de 800K.</p>
                                 </div>
                             </div>
