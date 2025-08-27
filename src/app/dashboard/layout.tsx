@@ -121,27 +121,27 @@ export default function DashboardLayout({
                     </SidebarMenuItem>
                 </SidebarMenu>
             </SidebarFooter>
+             <SidebarInset>
+                <header className="flex h-16 w-full items-center justify-between border-b bg-background px-6">
+                    <div className="flex items-center gap-4">
+                         <SidebarTrigger className="md:hidden" />
+                         <h2 className="text-xl font-semibold">Dashboard</h2>
+                    </div>
+                    <div className="flex items-center gap-4">
+                        <Button asChild>
+                            <Link href="/dashboard/projects">¡Quiero Invertir!</Link>
+                        </Button>
+                        <Avatar>
+                            <AvatarImage src="https://placehold.co/40x40.png" alt="User" data-ai-hint="person portrait"/>
+                            <AvatarFallback>JP</AvatarFallback>
+                        </Avatar>
+                    </div>
+                </header>
+                <main className="flex-1 overflow-y-auto bg-secondary/30 p-6">
+                    {children}
+                </main>
+            </SidebarInset>
         </Sidebar>
-        <SidebarInset>
-            <header className="flex h-16 w-full items-center justify-between border-b bg-background px-6">
-                <div className="flex items-center gap-4">
-                     <SidebarTrigger className="md:hidden" />
-                     <h2 className="text-xl font-semibold">Dashboard</h2>
-                </div>
-                <div className="flex items-center gap-4">
-                    <Button asChild>
-                        <Link href="/dashboard/projects">¡Quiero Invertir!</Link>
-                    </Button>
-                    <Avatar>
-                        <AvatarImage src="https://placehold.co/40x40.png" alt="User" data-ai-hint="person portrait"/>
-                        <AvatarFallback>JP</AvatarFallback>
-                    </Avatar>
-                </div>
-            </header>
-            <main className="flex-1 overflow-y-auto bg-secondary/30 p-6">
-                {children}
-            </main>
-        </SidebarInset>
     </div>
   );
 }
