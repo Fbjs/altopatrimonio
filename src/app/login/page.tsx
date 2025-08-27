@@ -1,9 +1,9 @@
 
 "use client";
 
-import React, { type SVGProps } from "react";
+import React, { useEffect, type SVGProps } from "react";
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -36,6 +36,17 @@ const formSchema = z.object({
 export default function LoginPage() {
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get('verified') === 'true') {
+      toast({
+        title: "Correo Verificado",
+        description: "Tu correo ha sido verificado con éxito. ¡Ya puedes iniciar sesión!",
+      });
+    }
+  }, [searchParams, toast]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -235,5 +246,3 @@ function Footer() {
         </footer>
     );
 }
-
-    

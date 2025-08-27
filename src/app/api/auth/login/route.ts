@@ -25,6 +25,10 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json({ message: 'Credenciales inválidas.' }, { status: 401 });
     }
+    
+    if (!user.emailVerified) {
+        return NextResponse.json({ message: 'Por favor, verifica tu correo electrónico antes de iniciar sesión.' }, { status: 403 });
+    }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
@@ -53,5 +57,3 @@ export async function POST(req: Request) {
     return NextResponse.json({ message: 'Error interno del servidor.' }, { status: 500 });
   }
 }
-
-    
