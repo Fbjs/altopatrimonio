@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { type SVGProps } from "react";
+import React, { type SVGProps, useState, useEffect } from "react";
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -22,6 +22,11 @@ import { Home, Briefcase, User, Settings, LifeBuoy, LogOut } from "lucide-react"
 import { Logo } from "@/components/ui/logo";
 import { useToast } from "@/hooks/use-toast";
 
+type UserProfile = {
+  name: string;
+  email: string;
+  avatar?: string;
+};
 
 export default function DashboardLayout({
   children,
@@ -31,6 +36,30 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const router = useRouter();
   const { toast } = useToast();
+  const [user, setUser] = useState<UserProfile | null>(null);
+
+  useEffect(() => {
+    async function fetchProfile() {
+      try {
+        const res = await fetch('/api/user/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        } else {
+          throw new Error('No se pudo cargar el perfil del usuario');
+        }
+      } catch (error) {
+        // Silently fail or show a toast
+        console.error(error);
+      }
+    }
+    fetchProfile();
+  }, []);
+
+  const getInitials = (name: string) => {
+    if (!name) return '';
+    return name.split(' ').map(n => n[0]).join('').toUpperCase();
+  }
 
   const menuItems = [
     { href: "/dashboard", icon: Home, label: "Inicio" },
@@ -127,15 +156,15 @@ export default function DashboardLayout({
             <header className="flex h-16 w-full items-center justify-between border-b bg-background px-6">
                 <div className="flex items-center gap-4">
                      <SidebarTrigger className="md:hidden" />
-                     <h2 className="text-xl font-semibold">Dashboard</h2>
+                     <h2 className="text-xl font-semibold capitalize">{pathname.split('/').pop()?.replace(/-/g, ' ') || 'Inicio'}</h2>
                 </div>
                 <div className="flex items-center gap-4">
                     <Button asChild>
                         <Link href="/dashboard/projects">¡Quiero Invertir!</Link>
                     </Button>
                     <Avatar>
-                        <AvatarImage src="https://placehold.co/40x40.png" alt="User" data-ai-hint="person portrait"/>
-                        <AvatarFallback>JP</AvatarFallback>
+                        <AvatarImage src={user?.avatar || undefined} alt={user?.name} data-ai-hint="person portrait"/>
+                        <AvatarFallback>{user ? getInitials(user.name) : '...'}</AvatarFallback>
                     </Avatar>
                 </div>
             </header>

@@ -8,6 +8,15 @@ export interface IUser extends Document {
   emailVerified: Date | null;
   emailVerificationToken?: string | null;
   avatar?: string;
+  settings?: {
+    notifications: {
+      opportunities: boolean;
+      updates: boolean;
+      newsletter: boolean;
+    };
+    theme: 'light' | 'dark' | 'system';
+    language: 'es' | 'en';
+  };
 }
 
 const UserSchema: Schema = new Schema({
@@ -42,6 +51,15 @@ const UserSchema: Schema = new Schema({
   avatar: {
     type: String,
     default: '',
+  },
+  settings: {
+    notifications: {
+      opportunities: { type: Boolean, default: true },
+      updates: { type: Boolean, default: true },
+      newsletter: { type: Boolean, default: false },
+    },
+    theme: { type: String, default: 'system' },
+    language: { type: String, default: 'es' },
   }
 });
 
