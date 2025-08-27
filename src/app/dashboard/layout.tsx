@@ -19,8 +19,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Home, Briefcase, User, Settings, LifeBuoy, LogOut, Shield } from "lucide-react";
-import { Logo } from "@/components/ui/logo";
 import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 type UserProfile = {
   name: string;
@@ -107,7 +107,7 @@ export default function DashboardLayout({
   if (isLoading) {
       return (
           <div className="flex h-screen items-center justify-center">
-              <Logo className="h-20 w-auto animate-pulse text-primary" />
+              <Image src="/logo.png" alt="AltoPatrimonio Logo" width={80} height={80} className="h-20 w-auto animate-pulse" />
           </div>
       )
   }
@@ -117,7 +117,7 @@ export default function DashboardLayout({
         <Sidebar>
             <SidebarHeader>
                 <div className="flex items-center gap-2">
-                    <Logo className="h-7 w-auto text-primary" />
+                    <Image src="/logo.png" alt="AltoPatrimonio Logo" width={28} height={28} className="h-7 w-auto" />
                     <span className="font-headline text-2xl font-bold tracking-wide text-foreground">
                         AltoPatrimonio
                     </span>

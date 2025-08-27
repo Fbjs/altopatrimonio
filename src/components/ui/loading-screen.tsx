@@ -2,9 +2,9 @@
 "use client";
 
 import React, { useEffect, useState } from 'react';
-import { Logo } from '@/components/ui/logo';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import Image from "next/image";
 
 export function LoadingScreen({ onFinished }: { onFinished: () => void }) {
   const [progress, setProgress] = useState(0);
@@ -36,7 +36,7 @@ export function LoadingScreen({ onFinished }: { onFinished: () => void }) {
       )}
     >
       <div className="flex flex-col items-center gap-6">
-        <Logo className="h-20 w-auto text-primary animate-pulse" />
+        <Image src="/logo.png" alt="AltoPatrimonio Logo" width={80} height={80} className="h-20 w-auto animate-pulse" />
         <div className="w-64">
           <Progress value={progress} className="h-2" />
           <p className="mt-2 text-center text-sm font-medium text-muted-foreground">

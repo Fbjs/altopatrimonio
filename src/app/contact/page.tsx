@@ -26,7 +26,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Twitter, Linkedin } from "lucide-react";
-import { Logo } from "@/components/ui/logo";
+import Image from "next/image";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -131,7 +131,7 @@ function Header() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-20 max-w-7xl items-center justify-between">
         <Link href="/" className="flex items-center gap-2">
-          <Logo className="h-8 w-auto text-primary" />
+          <Image src="/logo.png" alt="AltoPatrimonio Logo" width={32} height={32} className="h-8 w-auto" />
           <span className="font-headline text-3xl font-bold tracking-wide text-foreground">
             AltoPatrimonio
           </span>
@@ -174,7 +174,7 @@ function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                   <div className="flex flex-col items-center md:items-start">
                       <div className="flex items-center gap-3">
-                          <Logo className="h-7 w-auto text-primary" />
+                          <Image src="/logo.png" alt="AltoPatrimonio Logo" width={28} height={28} className="h-7 w-auto" />
                           <span className="font-headline text-2xl font-bold text-foreground">AltoPatrimonio</span>
                       </div>
                       <p className="mt-4 text-sm text-muted-foreground">Construyendo futuros a través de la inversión inmobiliaria inteligente.</p>

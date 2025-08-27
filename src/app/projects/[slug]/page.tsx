@@ -21,7 +21,6 @@ import { Slider } from "@/components/ui/slider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from "@/components/ui/carousel";
 import Autoplay from "embla-carousel-autoplay";
-import { Logo } from "@/components/ui/logo";
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -170,7 +169,7 @@ export default function ProjectDetailPage() {
                         <TabsList className="grid w-full grid-cols-2">
                           <TabsTrigger value="total">Total</TabsTrigger>
                           <TabsTrigger value="anualizada">Anualizada</TabsTrigger>
-                        </TabsList>
+                        </List>
                         <TabsContent value="total" className="mt-4 text-center">
                             <p className="text-2xl font-bold text-primary">{((parseFloat(project.annualizedReturn) / 100) * (parseInt(project.term) / 12) * 100).toFixed(1)}%</p>
                         </TabsContent>
@@ -224,7 +223,7 @@ function Header() {
       <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="container flex h-20 max-w-7xl items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Logo className="h-8 w-auto text-primary" />
+            <Image src="/logo.png" alt="AltoPatrimonio Logo" width={32} height={32} className="h-8 w-auto" />
             <span className="font-headline text-3xl font-bold tracking-wide text-foreground">
               AltoPatrimonio
             </span>
@@ -268,7 +267,7 @@ function Footer() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
                   <div className="flex flex-col items-center md:items-start">
                       <div className="flex items-center gap-3">
-                          <Logo className="h-7 w-auto text-primary" />
+                          <Image src="/logo.png" alt="AltoPatrimonio Logo" width={28} height={28} className="h-7 w-auto" />
                           <span className="font-headline text-2xl font-bold text-foreground">AltoPatrimonio</span>
                       </div>
                       <p className="mt-4 text-sm text-muted-foreground">Construyendo futuros a través de la inversión inmobiliaria inteligente.</p>
