@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Todos los campos son obligatorios.' }, { status: 400 });
     }
 
-    const user = await User.findOne({ email }).select('+password');
+    const user = await User.findOne({ email }).select('+password +emailVerified');
     if (!user) {
       return NextResponse.json({ message: 'Credenciales inválidas.' }, { status: 401 });
     }

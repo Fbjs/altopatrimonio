@@ -59,7 +59,7 @@ const investors = [
 
 const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP', minimumFractionDigits: 0 }).format(value);
-}
+};
 
 export default function ProjectDetailPage() {
   const [investmentAmount, setInvestmentAmount] = useState(project.maxInvestment);
