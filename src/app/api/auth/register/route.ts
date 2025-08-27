@@ -29,10 +29,8 @@ export async function POST(req: Request) {
     await newUser.save();
 
     return NextResponse.json({ message: 'Usuario creado con éxito.' }, { status: 201 });
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Error interno del servidor.' }, { status: 500 });
+  } catch (error: any) {
+    console.error('Error en el registro:', error.message);
+    return NextResponse.json({ message: error.message || 'Error interno del servidor.' }, { status: 500 });
   }
 }
-
-    
