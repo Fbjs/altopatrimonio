@@ -35,6 +35,9 @@ type SidebarContext = {
   setOpenMobile: (open: boolean) => void
   isMobile: boolean
   toggleSidebar: () => void
+  side: "left" | "right"
+  variant: "sidebar" | "floating" | "inset"
+  collapsible: "offcanvas" | "icon" | "none"
 }
 
 const SidebarContext = React.createContext<SidebarContext | null>(null)
@@ -131,8 +134,11 @@ const Root = React.forwardRef<
         openMobile,
         setOpenMobile,
         toggleSidebar,
+        side,
+        variant,
+        collapsible
       }),
-      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
+      [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar, side, variant, collapsible]
     )
     
     return (
@@ -210,9 +216,13 @@ const Sidebar = React.forwardRef<
         {/* This is what handles the sidebar gap on desktop */}
         <div
           className={cn(
-            "duration-200 relative h-svh w-[--sidebar-width] bg-transparent transition-[width] ease-linear",
+            "duration-200 relative h-svh w-0 bg-transparent transition-[width] ease-linear",
+            "group-data-[state=expanded]:w-[--sidebar-width]",
             "group-data-[collapsible=offcanvas]:w-0",
             "group-data-[side=right]:rotate-180",
+            variant === "floating" || variant === "inset"
+              ? "group-data-[collapsible=icon]:group-data-[state=expanded]:w-[calc(var(--sidebar-width)_+_theme(spacing.4))]"
+              : "group-data-[collapsible=icon]:group-data-[state=expanded]:w-[--sidebar-width]",
             variant === "floating" || variant === "inset"
               ? "group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4))]"
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon]"
@@ -222,12 +232,16 @@ const Sidebar = React.forwardRef<
           className={cn(
             "duration-200 fixed inset-y-0 z-10 hidden h-svh w-[--sidebar-width] transition-[left,right,width] ease-linear md:flex",
             side === "left"
-              ? "left-0 group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
-              : "right-0 group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
+              ? "left-0 group-data-[collapsible=offcanvas]:group-data-[state=expanded]:left-0"
+              : "right-0 group-data-[collapsible=offcanvas]:group-data-[state=expanded]:right-0",
+            side === "left"
+              ? "group-data-[collapsible=offcanvas]:left-[calc(var(--sidebar-width)*-1)]"
+              : "group-data-[collapsible=offcanvas]:right-[calc(var(--sidebar-width)*-1)]",
             // Adjust the padding for floating and inset variants.
             variant === "floating" || variant === "inset"
               ? "p-2 group-data-[collapsible=icon]:w-[calc(var(--sidebar-width-icon)_+_theme(spacing.4)_+2px)]"
               : "group-data-[collapsible=icon]:w-[--sidebar-width-icon] group-data-[side=left]:border-r group-data-[side=right]:border-l",
+            "group-data-[state=collapsed]:w-[var(--sidebar-width-icon)]",
             className
           )}
           {...props}
@@ -309,7 +323,11 @@ const SidebarInset = React.forwardRef<
     <main
       ref={ref}
       className={cn(
-        "relative flex min-h-svh flex-1 flex-col bg-background",
+        "relative flex min-h-svh flex-1 flex-col bg-background transition-[margin] duration-200 ease-linear",
+        "md:peer-data-[state=expanded]:peer-data-[side=left]:ml-[var(--sidebar-width)]",
+        "md:peer-data-[state=expanded]:peer-data-[side=right]:mr-[var(--sidebar-width)]",
+        "md:peer-data-[collapsible=icon]:peer-data-[side=left]:ml-[var(--sidebar-width-icon)]",
+        "md:peer-data-[collapsible=icon]:peer-data-[side=right]:mr-[var(--sidebar-width-icon)]",
         "peer-data-[variant=inset]:min-h-[calc(100svh-theme(spacing.4))] md:peer-data-[variant=inset]:m-2 md:peer-data-[state=collapsed]:peer-data-[variant=inset]:ml-2 md:peer-data-[variant=inset]:ml-0 md:peer-data-[variant=inset]:rounded-xl md:peer-data-[variant=inset]:shadow",
         className
       )}
