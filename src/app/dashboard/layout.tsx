@@ -3,7 +3,7 @@
 
 import React, { type SVGProps } from "react";
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
     Sidebar,
     SidebarProvider,
@@ -20,6 +20,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Home, Briefcase, User, Settings, LifeBuoy, LogOut } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
+import { useToast } from "@/hooks/use-toast";
 
 
 export default function DashboardLayout({
@@ -28,11 +29,38 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const router = useRouter();
+  const { toast } = useToast();
 
   const menuItems = [
     { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/dashboard/projects", icon: Briefcase, label: "Proyectos" },
   ];
+  
+  const handleLogout = async () => {
+    try {
+      const res = await fetch('/api/auth/logout', {
+        method: 'POST',
+      });
+
+      if (!res.ok) {
+        throw new Error('No se pudo cerrar la sesión');
+      }
+
+      toast({
+        title: "Sesión Cerrada",
+        description: "Has cerrado sesión con éxito.",
+      });
+      router.push('/login');
+
+    } catch (error: any) {
+        toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive",
+        });
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -86,11 +114,9 @@ export default function DashboardLayout({
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                     <SidebarMenuItem>
-                        <SidebarMenuButton asChild>
-                            <Link href="/">
-                                <LogOut />
-                                <span>Cerrar Sesión</span>
-                            </Link>
+                        <SidebarMenuButton onClick={handleLogout}>
+                            <LogOut />
+                            <span>Cerrar Sesión</span>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
                 </SidebarMenu>

@@ -1,7 +1,7 @@
 
 "use client";
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -11,10 +11,10 @@ import { Input } from '@/components/ui/input';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { Separator } from '@/components/ui/separator';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const profileFormSchema = z.object({
-  fullName: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
+  name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
   email: z.string().email({ message: "Por favor, introduce una dirección de correo electrónico válida." }),
 });
 
@@ -30,12 +30,13 @@ const passwordFormSchema = z.object({
 
 export default function ProfilePage() {
     const { toast } = useToast();
+    const [isLoading, setIsLoading] = useState(true);
 
     const profileForm = useForm<z.infer<typeof profileFormSchema>>({
         resolver: zodResolver(profileFormSchema),
         defaultValues: {
-          fullName: "Juan Pérez",
-          email: "juan.perez@email.com",
+          name: "",
+          email: "",
         },
     });
 
@@ -48,21 +49,84 @@ export default function ProfilePage() {
         },
     });
 
-    function onProfileSubmit(values: z.infer<typeof profileFormSchema>) {
-        console.log(values);
-        toast({
-          title: "Perfil Actualizado",
-          description: "Tu información ha sido actualizada con éxito.",
-        });
+    useEffect(() => {
+        async function fetchProfile() {
+            try {
+                setIsLoading(true);
+                const res = await fetch('/api/user/profile');
+                if (!res.ok) {
+                    throw new Error('No se pudo cargar la información del perfil.');
+                }
+                const data = await res.json();
+                profileForm.reset({ name: data.name, email: data.email });
+            } catch (error: any) {
+                toast({
+                    title: "Error",
+                    description: error.message,
+                    variant: "destructive",
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        }
+        fetchProfile();
+    }, [profileForm, toast]);
+
+
+    async function onProfileSubmit(values: z.infer<typeof profileFormSchema>) {
+        try {
+            const res = await fetch('/api/user/profile', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(values),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al actualizar el perfil.');
+            }
+            toast({
+                title: "Perfil Actualizado",
+                description: "Tu información ha sido actualizada con éxito.",
+            });
+        } catch (error: any) {
+            toast({
+                title: "Error",
+                description: error.message,
+                variant: "destructive",
+            });
+        }
     }
 
-    function onPasswordSubmit(values: z.infer<typeof passwordFormSchema>) {
-        console.log(values);
-        toast({
-            title: "Contraseña Cambiada",
-            description: "Tu contraseña ha sido cambiada con éxito.",
-        });
-        passwordForm.reset();
+    async function onPasswordSubmit(values: z.infer<typeof passwordFormSchema>) {
+        try {
+            const res = await fetch('/api/user/password', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    currentPassword: values.currentPassword,
+                    newPassword: values.newPassword,
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al cambiar la contraseña.');
+            }
+            toast({
+                title: "Contraseña Cambiada",
+                description: "Tu contraseña ha sido cambiada con éxito.",
+            });
+            passwordForm.reset();
+        } catch (error: any) {
+             toast({
+                title: "Error",
+                description: error.message,
+                variant: "destructive",
+            });
+        }
+    }
+
+    if (isLoading) {
+        return <ProfilePageSkeleton />;
     }
 
     return (
@@ -78,7 +142,7 @@ export default function ProfilePage() {
                     <CardDescription>Actualiza tu foto de perfil y detalles personales.</CardDescription>
                 </CardHeader>
                 <Form {...profileForm}>
-                    <form onSubmit={profileForm.handleSubmit(onProfileSubmit)}>
+                    <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} noValidate>
                         <CardContent className="space-y-6">
                             <div className="flex items-center gap-6">
                                 <Avatar className="h-20 w-20">
@@ -92,7 +156,7 @@ export default function ProfilePage() {
                             </div>
                             <FormField
                                 control={profileForm.control}
-                                name="fullName"
+                                name="name"
                                 render={({ field }) => (
                                 <FormItem>
                                     <FormLabel>Nombre Completo</FormLabel>
@@ -118,7 +182,9 @@ export default function ProfilePage() {
                             />
                         </CardContent>
                         <CardFooter className="border-t px-6 py-4">
-                            <Button type="submit">Guardar Cambios</Button>
+                            <Button type="submit" disabled={profileForm.formState.isSubmitting}>
+                                {profileForm.formState.isSubmitting ? "Guardando..." : "Guardar Cambios"}
+                            </Button>
                         </CardFooter>
                     </form>
                 </Form>
@@ -130,7 +196,7 @@ export default function ProfilePage() {
                     <CardDescription>Asegúrate de que tu cuenta utilice una contraseña larga y aleatoria para mantenerse segura.</CardDescription>
                 </CardHeader>
                  <Form {...passwordForm}>
-                    <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)}>
+                    <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} noValidate>
                         <CardContent className="space-y-6">
                             <FormField
                                 control={passwordForm.control}
@@ -173,10 +239,74 @@ export default function ProfilePage() {
                             />
                         </CardContent>
                         <CardFooter className="border-t px-6 py-4">
-                            <Button type="submit">Cambiar Contraseña</Button>
+                             <Button type="submit" disabled={passwordForm.formState.isSubmitting}>
+                                {passwordForm.formState.isSubmitting ? "Cambiando..." : "Cambiar Contraseña"}
+                            </Button>
                         </CardFooter>
                     </form>
                 </Form>
+            </Card>
+        </div>
+    )
+}
+
+function ProfilePageSkeleton() {
+    return (
+        <div className="space-y-8">
+            <div>
+                <Skeleton className="h-9 w-48" />
+                <Skeleton className="h-5 w-80 mt-2" />
+            </div>
+
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-7 w-52" />
+                    <Skeleton className="h-5 w-72" />
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="flex items-center gap-6">
+                        <Skeleton className="h-20 w-20 rounded-full" />
+                        <div className="space-y-2">
+                             <Skeleton className="h-10 w-28" />
+                             <Skeleton className="h-4 w-48" />
+                        </div>
+                    </div>
+                    <div className="space-y-2">
+                        <Skeleton className="h-5 w-24" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                </CardContent>
+                <CardFooter className="border-t px-6 py-4">
+                    <Skeleton className="h-10 w-32" />
+                </CardFooter>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <Skeleton className="h-7 w-60" />
+                    <Skeleton className="h-5 w-96" />
+                </CardHeader>
+                <CardContent className="space-y-6">
+                     <div className="space-y-2">
+                        <Skeleton className="h-5 w-32" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-5 w-36" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                     <div className="space-y-2">
+                        <Skeleton className="h-5 w-48" />
+                        <Skeleton className="h-10 w-full" />
+                    </div>
+                </CardContent>
+                <CardFooter className="border-t px-6 py-4">
+                    <Skeleton className="h-10 w-40" />
+                </CardFooter>
             </Card>
         </div>
     )
