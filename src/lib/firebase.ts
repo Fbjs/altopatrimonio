@@ -7,7 +7,7 @@ const firebaseConfig = {
   projectId: "altopatrimonio-invest",
   appId: "1:973668492324:web:514962946757ab3c98a4b1",
   storageBucket: "altopatrimonio-invest.firebasestorage.app",
-  apiKey: "AIzaSyBAQm5XiDtaYW39uK1VLjiN_kktZ4B4pdg",
+  apiKey: "AIzaSyDsRTjRzEqnbWYZdP3Si_JZaJWscOO7TiU",
   authDomain: "altopatrimonio-invest.firebaseapp.com",
   measurementId: "",
   messagingSenderId: "973668492324"
