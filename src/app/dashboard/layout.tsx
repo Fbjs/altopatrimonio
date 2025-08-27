@@ -44,7 +44,8 @@ export default function DashboardLayout({
       });
 
       if (!res.ok) {
-        throw new Error('No se pudo cerrar la sesión');
+        const data = await res.json();
+        throw new Error(data.message || 'No se pudo cerrar la sesión');
       }
 
       toast({
