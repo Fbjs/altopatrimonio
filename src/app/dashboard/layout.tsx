@@ -6,7 +6,6 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
     Sidebar,
-    SidebarProvider,
     SidebarTrigger,
     SidebarInset,
     SidebarHeader,
@@ -64,7 +63,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <SidebarProvider>
+    <div className="flex min-h-svh">
         <Sidebar>
             <SidebarHeader>
                 <div className="flex items-center gap-2">
@@ -143,6 +142,6 @@ export default function DashboardLayout({
                 {children}
             </main>
         </SidebarInset>
-    </SidebarProvider>
+    </div>
   );
 }

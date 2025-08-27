@@ -1,3 +1,4 @@
+
 "use client"
 
 import * as React from "react"
@@ -41,15 +42,18 @@ const SidebarContext = React.createContext<SidebarContext | null>(null)
 function useSidebar() {
   const context = React.useContext(SidebarContext)
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider.")
+    throw new Error("useSidebar must be used within a Sidebar component.")
   }
 
   return context
 }
 
-const SidebarProvider = React.forwardRef<
+const Sidebar = React.forwardRef<
   HTMLDivElement,
   React.ComponentProps<"div"> & {
+    side?: "left" | "right"
+    variant?: "sidebar" | "floating" | "inset"
+    collapsible?: "offcanvas" | "icon" | "none"
     defaultOpen?: boolean
     open?: boolean
     onOpenChange?: (open: boolean) => void
@@ -57,12 +61,15 @@ const SidebarProvider = React.forwardRef<
 >(
   (
     {
+      side = "left",
+      variant = "sidebar",
+      collapsible = "offcanvas",
+      className,
+      children,
       defaultOpen = true,
       open: openProp,
       onOpenChange: setOpenProp,
-      className,
       style,
-      children,
       ...props
     },
     ref
@@ -128,55 +135,7 @@ const SidebarProvider = React.forwardRef<
       }),
       [state, open, setOpen, isMobile, openMobile, setOpenMobile, toggleSidebar]
     )
-
-    return (
-      <SidebarContext.Provider value={contextValue}>
-        <TooltipProvider delayDuration={0}>
-          <div
-            style={
-              {
-                "--sidebar-width": SIDEBAR_WIDTH,
-                "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
-                ...style,
-              } as React.CSSProperties
-            }
-            className={cn(
-              "group/sidebar-wrapper flex min-h-svh w-full has-[[data-variant=inset]]:bg-sidebar",
-              className
-            )}
-            ref={ref}
-            {...props}
-          >
-            {children}
-          </div>
-        </TooltipProvider>
-      </SidebarContext.Provider>
-    )
-  }
-)
-SidebarProvider.displayName = "SidebarProvider"
-
-const Sidebar = React.forwardRef<
-  HTMLDivElement,
-  React.ComponentProps<"div"> & {
-    side?: "left" | "right"
-    variant?: "sidebar" | "floating" | "inset"
-    collapsible?: "offcanvas" | "icon" | "none"
-  }
->(
-  (
-    {
-      side = "left",
-      variant = "sidebar",
-      collapsible = "offcanvas",
-      className,
-      children,
-      ...props
-    },
-    ref
-  ) => {
-    const { isMobile, state, openMobile, setOpenMobile } = useSidebar()
-
+    
     if (collapsible === "none") {
       return (
         <div
@@ -187,7 +146,9 @@ const Sidebar = React.forwardRef<
           ref={ref}
           {...props}
         >
-          {children}
+           <SidebarContext.Provider value={contextValue}>
+              <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+           </SidebarContext.Provider>
         </div>
       )
     }
@@ -206,7 +167,11 @@ const Sidebar = React.forwardRef<
             }
             side={side}
           >
-            <div className="flex h-full w-full flex-col">{children}</div>
+            <div className="flex h-full w-full flex-col">
+              <SidebarContext.Provider value={contextValue}>
+                <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+              </SidebarContext.Provider>
+            </div>
           </SheetContent>
         </Sheet>
       )
@@ -220,6 +185,13 @@ const Sidebar = React.forwardRef<
         data-collapsible={state === "collapsed" ? collapsible : ""}
         data-variant={variant}
         data-side={side}
+        style={
+            {
+              "--sidebar-width": SIDEBAR_WIDTH,
+              "--sidebar-width-icon": SIDEBAR_WIDTH_ICON,
+              ...style,
+            } as React.CSSProperties
+          }
       >
         {/* This is what handles the sidebar gap on desktop */}
         <div
@@ -250,7 +222,9 @@ const Sidebar = React.forwardRef<
             data-sidebar="sidebar"
             className="flex h-full w-full flex-col bg-sidebar group-data-[variant=floating]:rounded-lg group-data-[variant=floating]:border group-data-[variant=floating]:border-sidebar-border group-data-[variant=floating]:shadow"
           >
-            {children}
+            <SidebarContext.Provider value={contextValue}>
+              <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+            </SidebarContext.Provider>
           </div>
         </div>
       </div>
@@ -755,7 +729,6 @@ export {
   SidebarMenuSub,
   SidebarMenuSubButton,
   SidebarMenuSubItem,
-  SidebarProvider,
   SidebarRail,
   SidebarSeparator,
   SidebarTrigger,
