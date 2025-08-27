@@ -4,7 +4,7 @@ import { jwtVerify, type JWTPayload } from 'jose';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-const PUBLIC_PATHS = ['/', '/login', '/register', '/contact', '/privacy', '/terms', '/api/auth/login', '/api/auth/register', '/api/auth/verify'];
+const PUBLIC_PATHS = ['/', '/login', '/register', '/contact', '/privacy', '/terms', '/api/auth/login', '/api/auth/register'];
 
 async function verifyToken(token: string): Promise<JWTPayload | null> {
     if (!JWT_SECRET) {
@@ -24,39 +24,44 @@ export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const token = request.cookies.get('token')?.value;
 
-    // Verificar si es una ruta estática o de imagen para evitar procesarla
-    if (pathname.startsWith('/_next') || pathname.startsWith('/static') || /\.(png|jpg|jpeg|gif|svg|ico)$/.test(pathname)) {
+    // Ignorar rutas de archivos estáticos y de la API de verificación de correo
+    if (
+        pathname.startsWith('/_next') ||
+        pathname.startsWith('/static') ||
+        pathname.startsWith('/api/auth/verify') ||
+        /\.(png|jpg|jpeg|gif|svg|ico)$/.test(pathname)
+    ) {
         return NextResponse.next();
     }
     
-    // Verificar si es una ruta pública específica que no necesita autenticación
-    const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path) || (path !=='/' && pathname.startsWith(path)));
-    const isApiVerification = pathname.startsWith('/api/auth/verify');
-
-    if (isApiVerification) {
-        return NextResponse.next();
-    }
-
     const payload = token ? await verifyToken(token) : null;
+    const isPublicPath = PUBLIC_PATHS.some(path => pathname === path || (path !=='/' && pathname.startsWith(path) && path.length > 1));
 
-    if (payload) { // El usuario está autenticado
-        if (isPublicPath) {
-            // Si el usuario autenticado intenta acceder a login/register, redirigir a dashboard
-            if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
-                return NextResponse.redirect(new URL('/dashboard', request.url));
-            }
+    if (payload) { // Usuario autenticado
+        if (pathname.startsWith('/login') || pathname.startsWith('/register')) {
+            // Si intenta acceder a login/register, redirigir a dashboard
+            return NextResponse.redirect(new URL('/dashboard', request.url));
         }
-        // Para rutas protegidas, adjuntar headers y continuar
+
+        // Para todas las demás rutas (incluidas las de API), adjuntar headers y continuar
         const requestHeaders = new Headers(request.headers);
-        requestHeaders.set('x-user-id', payload.userId as string);
-        requestHeaders.set('x-user-email', payload.email as string);
-        return NextResponse.next({ request: { headers: requestHeaders } });
-    
-    } else { // El usuario no está autenticado
+        if (payload.userId) {
+          requestHeaders.set('x-user-id', payload.userId as string);
+        }
+        if (payload.email) {
+          requestHeaders.set('x-user-email', payload.email as string);
+        }
+
+        return NextResponse.next({
+            request: {
+                headers: requestHeaders,
+            },
+        });
+    } else { // Usuario no autenticado
         if (!isPublicPath) {
             // Si intenta acceder a una ruta protegida, redirigir a login
             const response = NextResponse.redirect(new URL('/login', request.url));
-            response.cookies.set('token', '', { maxAge: -1 }); // Limpiar cookie inválida si existe
+            response.cookies.delete('token'); // Limpiar cookie inválida
             return response;
         }
     }
@@ -66,5 +71,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!api/|_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };
