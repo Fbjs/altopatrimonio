@@ -8,6 +8,7 @@ export interface IUser extends Document {
   emailVerified: Date | null;
   emailVerificationToken?: string | null;
   avatar?: string;
+  role: 'user' | 'admin';
   settings?: {
     notifications: {
       opportunities: boolean;
@@ -51,6 +52,11 @@ const UserSchema: Schema = new Schema({
   avatar: {
     type: String,
     default: '',
+  },
+  role: {
+    type: String,
+    enum: ['user', 'admin'],
+    default: 'user',
   },
   settings: {
     notifications: {

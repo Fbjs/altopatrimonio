@@ -27,6 +27,7 @@ export async function POST(req: Request) {
       email,
       password: hashedPassword,
       emailVerificationToken,
+      role: 'user', // Asignar rol por defecto
     });
 
     await newUser.save();

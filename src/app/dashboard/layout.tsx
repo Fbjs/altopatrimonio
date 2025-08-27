@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Home, Briefcase, User, Settings, LifeBuoy, LogOut } from "lucide-react";
+import { Home, Briefcase, User, Settings, LifeBuoy, LogOut, Shield } from "lucide-react";
 import { Logo } from "@/components/ui/logo";
 import { useToast } from "@/hooks/use-toast";
 
@@ -26,6 +26,7 @@ type UserProfile = {
   name: string;
   email: string;
   avatar?: string;
+  role?: 'user' | 'admin';
 };
 
 export default function DashboardLayout({
@@ -37,6 +38,7 @@ export default function DashboardLayout({
   const router = useRouter();
   const { toast } = useToast();
   const [user, setUser] = useState<UserProfile | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -49,12 +51,18 @@ export default function DashboardLayout({
           throw new Error('No se pudo cargar el perfil del usuario');
         }
       } catch (error) {
-        // Silently fail or show a toast
-        console.error(error);
+        toast({
+            title: "Error",
+            description: "No se pudo cargar la información del perfil.",
+            variant: "destructive",
+        });
+        router.push('/login');
+      } finally {
+        setIsLoading(false);
       }
     }
     fetchProfile();
-  }, []);
+  }, [router, toast]);
 
   const getInitials = (name: string) => {
     if (!name) return '';
@@ -64,6 +72,10 @@ export default function DashboardLayout({
   const menuItems = [
     { href: "/dashboard", icon: Home, label: "Inicio" },
     { href: "/dashboard/projects", icon: Briefcase, label: "Proyectos" },
+  ];
+
+  const adminMenuItems = [
+    { href: "/dashboard/admin", icon: Shield, label: "Administración" },
   ];
   
   const handleLogout = async () => {
@@ -92,6 +104,14 @@ export default function DashboardLayout({
     }
   };
 
+  if (isLoading) {
+      return (
+          <div className="flex h-screen items-center justify-center">
+              <Logo className="h-20 w-auto animate-pulse text-primary" />
+          </div>
+      )
+  }
+
   return (
     <SidebarRoot>
         <Sidebar>
@@ -108,6 +128,16 @@ export default function DashboardLayout({
                     {menuItems.map((item) => (
                         <SidebarMenuItem key={item.href}>
                             <SidebarMenuButton asChild isActive={pathname === item.href}>
+                                <Link href={item.href}>
+                                    <item.icon />
+                                    <span>{item.label}</span>
+                                </Link>
+                            </SidebarMenuButton>
+                        </SidebarMenuItem>
+                    ))}
+                    {user?.role === 'admin' && adminMenuItems.map((item) => (
+                         <SidebarMenuItem key={item.href}>
+                            <SidebarMenuButton asChild isActive={pathname.startsWith(item.href)}>
                                 <Link href={item.href}>
                                     <item.icon />
                                     <span>{item.label}</span>
