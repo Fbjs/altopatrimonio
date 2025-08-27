@@ -53,13 +53,37 @@ export default function RegisterPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Simulate account creation
-    toast({
-      title: "Cuenta Creada",
-      description: "Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.",
-    });
-    router.push('/login');
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: values.name,
+          email: values.email,
+          password: values.password,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Algo salió mal');
+      }
+
+      toast({
+        title: "Cuenta Creada",
+        description: "Tu cuenta ha sido creada con éxito. Ahora puedes iniciar sesión.",
+      });
+      router.push('/login');
+    } catch (error: any) {
+      toast({
+        title: "Error de Registro",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -76,7 +100,7 @@ export default function RegisterPage() {
             </CardHeader>
             <CardContent>
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <FormField
                     control={form.control}
                     name="name"
@@ -249,3 +273,5 @@ function Footer() {
         </footer>
     );
 }
+
+    

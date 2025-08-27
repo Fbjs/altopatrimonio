@@ -45,13 +45,33 @@ export default function LoginPage() {
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
-    // Simulate successful login
-    toast({
-      title: "Inicio de Sesión Exitoso",
-      description: "¡Bienvenido de vuelta!",
-    });
-    router.push('/dashboard');
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Algo salió mal');
+      }
+
+      toast({
+        title: "Inicio de Sesión Exitoso",
+        description: "¡Bienvenido de vuelta!",
+      });
+      router.push('/dashboard');
+    } catch (error: any) {
+       toast({
+        title: "Error de Inicio de Sesión",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
   }
 
   return (
@@ -215,3 +235,5 @@ function Footer() {
         </footer>
     );
 }
+
+    
