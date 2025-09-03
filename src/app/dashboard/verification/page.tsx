@@ -3,11 +3,21 @@
 
 import React from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ShieldCheck, FileText, Lock } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, FileText, Lock, QrCode, Smartphone } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+
 
 const verificationSteps = [
     { 
@@ -81,35 +91,82 @@ export default function VerificationPage() {
                             </div>
 
                             <div className="space-y-4">
-                                {verificationSteps.map((step, index) => (
-                                    <Card 
-                                        key={index}
-                                        className={cn(
-                                            "p-6",
-                                            step.status === 'active' && 'border-primary ring-1 ring-primary bg-primary/5',
-                                            step.status === 'locked' && 'bg-secondary/50'
-                                        )}
-                                    >
-                                        <div className="flex items-start gap-6">
-                                            <div className={cn(
-                                                "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold",
-                                                 step.status === 'active' ? 'bg-primary text-primary-foreground' : 'bg-border text-muted-foreground'
-                                            )}>
-                                                {index + 1}
+                                {verificationSteps.map((step, index) => {
+                                    if (step.title === "Verificación de Identidad") {
+                                        return (
+                                            <Dialog key={index}>
+                                                <Card 
+                                                    className={cn(
+                                                        "p-6",
+                                                        step.status === 'active' && 'border-primary ring-1 ring-primary bg-primary/5',
+                                                    )}
+                                                >
+                                                    <div className="flex items-start gap-6">
+                                                        <div className={cn(
+                                                            "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold",
+                                                             step.status === 'active' ? 'bg-primary text-primary-foreground' : 'bg-border text-muted-foreground'
+                                                        )}>
+                                                            {index + 1}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
+                                                            <p className="text-sm text-muted-foreground">{step.description}</p>
+                                                            {step.status === 'active' && (
+                                                                <p className="text-sm text-muted-foreground mt-2">{step.statusText}</p>
+                                                            )}
+                                                        </div>
+                                                        <DialogTrigger asChild>
+                                                            <Button>{step.buttonText}</Button>
+                                                        </DialogTrigger>
+                                                    </div>
+                                                </Card>
+                                                <DialogContent className="sm:max-w-md">
+                                                    <DialogHeader>
+                                                        <DialogTitle className="font-headline text-2xl flex items-center gap-2"><QrCode /> Verifica tu identidad</DialogTitle>
+                                                        <DialogDescription>
+                                                            Escanea el código QR con tu teléfono para continuar con la verificación de forma segura.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="flex flex-col items-center justify-center space-y-6 py-6">
+                                                        <div className="rounded-lg border p-4 bg-white">
+                                                            <Image src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://altopatrimonio.com/verify" alt="QR Code" width={200} height={200} data-ai-hint="qr code" />
+                                                        </div>
+                                                        <p className="text-sm text-muted-foreground">¿No puedes escanear? No te preocupes.</p>
+                                                        <Button className="w-full">
+                                                            <Smartphone className="mr-2 h-4 w-4" />
+                                                            Continuar en el teléfono
+                                                        </Button>
+                                                    </div>
+                                                </DialogContent>
+                                            </Dialog>
+                                        )
+                                    }
+                                    return (
+                                        <Card 
+                                            key={index}
+                                            className={cn(
+                                                "p-6",
+                                                step.status === 'locked' && 'bg-secondary/50'
+                                            )}
+                                        >
+                                            <div className="flex items-start gap-6">
+                                                <div className={cn(
+                                                    "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold",
+                                                    'bg-border text-muted-foreground'
+                                                )}>
+                                                    {index + 1}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
+                                                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                                                </div>
+                                                <Button disabled>
+                                                    {step.buttonText}
+                                                </Button>
                                             </div>
-                                            <div className="flex-1">
-                                                <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
-                                                <p className="text-sm text-muted-foreground">{step.description}</p>
-                                                {step.status === 'active' && (
-                                                    <p className="text-sm text-muted-foreground mt-2">{step.statusText}</p>
-                                                )}
-                                            </div>
-                                            <Button disabled={step.status === 'locked'}>
-                                                {step.buttonText}
-                                            </Button>
-                                        </div>
-                                    </Card>
-                                ))}
+                                        </Card>
+                                    )
+                                })}
                             </div>
                         </CardContent>
                     </Card>
