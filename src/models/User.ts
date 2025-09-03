@@ -8,6 +8,7 @@ export interface IUser extends Document {
   createdAt: Date;
   emailVerified: Date | null;
   emailVerificationToken?: string | null;
+  verificationQrCode?: string;
   avatar?: string;
   role: 'user' | 'admin';
   settings?: {
@@ -47,6 +48,10 @@ const UserSchema: Schema = new Schema({
     default: null,
   },
   emailVerificationToken: {
+    type: String,
+    select: false,
+  },
+  verificationQrCode: {
     type: String,
     select: false,
   },

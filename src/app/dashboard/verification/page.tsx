@@ -1,13 +1,13 @@
 
 "use client";
 
-import React from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ShieldCheck, FileText, Lock, Smartphone, HelpCircle, ChevronDown } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, FileText, Lock, ChevronDown, HelpCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
     Dialog,
@@ -17,6 +17,8 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog"
+import { useToast } from '@/hooks/use-toast';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 const verificationSteps = [
@@ -67,6 +69,81 @@ const whyImportant = [
         description: "La verificación protege tanto tus inversiones como a nuestra plataforma contra actividades fraudulentas."
     }
 ];
+
+function VerificationDialogContent() {
+    const [qrUrl, setQrUrl] = useState<string | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const { toast } = useToast();
+
+    const fetchQrCode = async () => {
+        setIsLoading(true);
+        setError(null);
+        try {
+            const res = await fetch('/api/user/verification-qr');
+            if (!res.ok) {
+                const data = await res.json();
+                throw new Error(data.message || 'No se pudo generar el código QR.');
+            }
+            const data = await res.json();
+            setQrUrl(data.qrUrl);
+        } catch (err: any) {
+            setError(err.message);
+            toast({
+                title: "Error",
+                description: err.message,
+                variant: "destructive",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    return (
+        <DialogContent onOpenAutoFocus={fetchQrCode} className="sm:max-w-md p-8">
+            <DialogHeader className="text-center">
+                <DialogTitle className="font-headline text-2xl">Verificación de identidad</DialogTitle>
+            </DialogHeader>
+            <div className="flex flex-col items-center justify-center space-y-4 pt-4 min-h-[260px]">
+                {isLoading && (
+                    <div className="flex flex-col items-center justify-center gap-4">
+                        <Skeleton className="h-[200px] w-[200px] rounded-lg" />
+                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                        <p className="text-sm text-muted-foreground">Generando código QR...</p>
+                    </div>
+                )}
+                {error && !isLoading && (
+                     <div className="flex flex-col items-center justify-center text-center">
+                        <p className="text-destructive">{error}</p>
+                        <Button onClick={fetchQrCode} variant="link" className="mt-2">Reintentar</Button>
+                    </div>
+                )}
+                {qrUrl && !isLoading && (
+                    <div className="rounded-lg border p-2 bg-white">
+                        <Image src={qrUrl} alt="QR Code" width={200} height={200} data-ai-hint="qr code" />
+                    </div>
+                )}
+                 <div className="text-center">
+                    <h3 className="font-semibold text-foreground">Continúa desde tu teléfono</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs mt-1">Por favor, escanea este código QR para comenzar la verificación de tu identidad</p>
+                </div>
+            </div>
+             <div className="flex justify-between items-center mt-6 pt-6 border-t">
+                <Button variant="link" className="text-xs text-muted-foreground p-0 h-auto">
+                    <HelpCircle className="h-4 w-4 mr-1.5" />
+                    ¿Por qué se necesita esto?
+                </Button>
+                <Button variant="ghost" className="text-xs text-muted-foreground p-0 h-auto">
+                    Idioma: <span className="font-semibold text-foreground ml-1">Español</span>
+                    <ChevronDown className="h-4 w-4 ml-1" />
+                </Button>
+            </div>
+            <div className="text-center mt-2">
+                <p className="text-xs text-muted-foreground">Motorizado por ⚡️ AiPrise</p>
+            </div>
+        </DialogContent>
+    )
+}
 
 export default function VerificationPage() {
     return (
@@ -120,33 +197,7 @@ export default function VerificationPage() {
                                                         </DialogTrigger>
                                                     </div>
                                                 </Card>
-                                                 <DialogContent className="sm:max-w-md p-8">
-                                                    <DialogHeader className="text-center">
-                                                        <DialogTitle className="font-headline text-2xl">Verificación de identidad</DialogTitle>
-                                                    </DialogHeader>
-                                                    <div className="flex flex-col items-center justify-center space-y-4 pt-4">
-                                                        <div className="rounded-lg border p-2 bg-white">
-                                                            <Image src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://altopatrimonio.com/verify" alt="QR Code" width={200} height={200} data-ai-hint="qr code" />
-                                                        </div>
-                                                        <div className="text-center">
-                                                            <h3 className="font-semibold text-foreground">Continúa desde tu teléfono</h3>
-                                                            <p className="text-sm text-muted-foreground max-w-xs mt-1">Por favor, escanea este código QR para comenzar la verificación de tu identidad</p>
-                                                        </div>
-                                                    </div>
-                                                     <div className="flex justify-between items-center mt-6 pt-6 border-t">
-                                                        <Button variant="link" className="text-xs text-muted-foreground p-0 h-auto">
-                                                            <HelpCircle className="h-4 w-4 mr-1.5" />
-                                                            ¿Por qué se necesita esto?
-                                                        </Button>
-                                                        <Button variant="ghost" className="text-xs text-muted-foreground p-0 h-auto">
-                                                            Idioma: <span className="font-semibold text-foreground ml-1">Español</span>
-                                                            <ChevronDown className="h-4 w-4 ml-1" />
-                                                        </Button>
-                                                    </div>
-                                                    <div className="text-center mt-2">
-                                                        <p className="text-xs text-muted-foreground">Motorizado por ⚡️ AiPrise</p>
-                                                    </div>
-                                                </DialogContent>
+                                                <VerificationDialogContent />
                                             </Dialog>
                                         )
                                     }
