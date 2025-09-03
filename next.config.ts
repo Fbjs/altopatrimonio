@@ -20,9 +20,17 @@ const nextConfig = {
         hostname: 'api.qrserver.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'flagcdn.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
 };
 
 module.exports = nextConfig;
+
+    

@@ -86,7 +86,7 @@ export default function VerifyIdentityPage() {
         )}>
             <main className={cn(
                 "flex-1 flex flex-col",
-                isCameraStep ? 'justify-end' : 'items-center justify-center p-6'
+                !isCameraStep && 'items-center justify-center p-6'
             )}>
                 {isCameraStep ? renderStep() : (
                     <Card className="w-full max-w-sm p-0 shadow-none border-none bg-transparent">
@@ -234,19 +234,19 @@ function CameraStep({ onBack }: { onBack: () => void }) {
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     return (
-        <div className="relative w-full h-full flex flex-col">
+        <div className="relative w-full h-screen flex flex-col">
             <video ref={videoRef} className="absolute inset-0 w-full h-full object-cover" autoPlay muted playsInline />
             <div className="absolute inset-0 bg-black/30" />
 
-            <div className="relative z-10 flex flex-col h-full">
-                <header className="flex items-center p-4">
-                    <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/10 rounded-full">
+            <div className="relative z-10 flex flex-col h-full justify-between">
+                <header className="flex items-center justify-between p-4">
+                     <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/10 rounded-full">
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
+                    <h1 className="text-xl font-semibold text-white absolute left-1/2 -translate-x-1/2">Frente de la Identificación Nacional</h1>
                 </header>
                 
                 <div className="flex-1 flex flex-col items-center justify-center text-white text-center px-4">
-                    <h1 className="text-xl font-semibold mb-4">Frente de la Identificación Nacional</h1>
                     <div className="relative w-full max-w-sm aspect-[1.586/1]">
                         <div className="absolute top-0 left-0 w-12 h-12 border-t-4 border-l-4 border-white rounded-tl-lg" />
                         <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-white rounded-tr-lg" />
@@ -292,3 +292,5 @@ function CameraStep({ onBack }: { onBack: () => void }) {
     );
 }
 
+
+    
