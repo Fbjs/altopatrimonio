@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ShieldCheck, FileText, Lock, ChevronDown, HelpCircle, Loader2 } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, FileText, Lock, ChevronDown, HelpCircle, Loader2, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
     Dialog,
@@ -16,6 +16,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
+    DialogClose,
 } from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -69,6 +70,25 @@ const whyImportant = [
         description: "La verificación protege tanto tus inversiones como a nuestra plataforma contra actividades fraudulentas."
     }
 ];
+
+function WhyIsThisNeededDialog() {
+    return (
+        <DialogContent className="sm:max-w-sm p-8 text-center">
+             <DialogHeader>
+                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-secondary">
+                    <HelpCircle className="h-6 w-6 text-primary" />
+                </div>
+                <DialogTitle className="font-headline text-xl mt-4">¿Por qué se necesita esto?</DialogTitle>
+             </DialogHeader>
+            <DialogDescription className="text-base text-muted-foreground">
+                La verificación de identidad es un proceso usado por negocios y organizaciones para verificar la identidad de sus clientes.
+                <br /><br />
+                Completar el proceso KYC es un paso importante mientras para establecer seguridad y confianza entre empresas y clientes.
+            </DialogDescription>
+        </DialogContent>
+    );
+}
+
 
 function VerificationDialogContent() {
     const [qrUrl, setQrUrl] = useState<string | null>(null);
@@ -135,10 +155,15 @@ function VerificationDialogContent() {
                 )}
             </div>
              <div className="flex justify-between items-center mt-6 pt-6 border-t">
-                <Button variant="link" className="text-xs text-muted-foreground p-0 h-auto">
-                    <HelpCircle className="h-4 w-4 mr-1.5" />
-                    ¿Por qué se necesita esto?
-                </Button>
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button variant="link" className="text-xs text-muted-foreground p-0 h-auto">
+                            <HelpCircle className="h-4 w-4 mr-1.5" />
+                            ¿Por qué se necesita esto?
+                        </Button>
+                    </DialogTrigger>
+                    <WhyIsThisNeededDialog />
+                </Dialog>
                 <Button variant="ghost" className="text-xs text-muted-foreground p-0 h-auto">
                     Idioma: <span className="font-semibold text-foreground ml-1">Español</span>
                     <ChevronDown className="h-4 w-4 ml-1" />
@@ -264,5 +289,3 @@ export default function VerificationPage() {
         </div>
     )
 }
-
-    
