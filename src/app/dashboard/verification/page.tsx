@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
@@ -99,8 +99,12 @@ function VerificationDialogContent() {
         }
     };
     
+    useEffect(() => {
+        fetchQrCode();
+    }, []);
+    
     return (
-        <DialogContent onOpenAutoFocus={fetchQrCode} className="sm:max-w-md p-8">
+        <DialogContent className="sm:max-w-md p-8">
             <DialogHeader className="text-center">
                 <DialogTitle className="font-headline text-2xl">Verificación de identidad</DialogTitle>
             </DialogHeader>
@@ -119,14 +123,16 @@ function VerificationDialogContent() {
                     </div>
                 )}
                 {qrUrl && !isLoading && (
-                    <div className="rounded-lg border p-2 bg-white">
-                        <Image src={qrUrl} alt="QR Code" width={200} height={200} data-ai-hint="qr code" />
-                    </div>
+                    <>
+                        <div className="rounded-lg border p-2 bg-white">
+                            <Image src={qrUrl} alt="QR Code" width={200} height={200} data-ai-hint="qr code" />
+                        </div>
+                        <div className="text-center">
+                            <h3 className="font-semibold text-foreground">Continúa desde tu teléfono</h3>
+                            <p className="text-sm text-muted-foreground max-w-xs mt-1">Por favor, escanea este código QR para comenzar la verificación de tu identidad</p>
+                        </div>
+                    </>
                 )}
-                 <div className="text-center">
-                    <h3 className="font-semibold text-foreground">Continúa desde tu teléfono</h3>
-                    <p className="text-sm text-muted-foreground max-w-xs mt-1">Por favor, escanea este código QR para comenzar la verificación de tu identidad</p>
-                </div>
             </div>
              <div className="flex justify-between items-center mt-6 pt-6 border-t">
                 <Button variant="link" className="text-xs text-muted-foreground p-0 h-auto">
@@ -258,3 +264,5 @@ export default function VerificationPage() {
         </div>
     )
 }
+
+    
