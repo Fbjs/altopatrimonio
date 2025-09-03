@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Twitter, Linkedin, User } from "lucide-react";
+import { ArrowLeft, Twitter, Linkedin, User, List } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Slider } from "@/components/ui/slider";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -169,7 +169,7 @@ export default function ProjectDetailPage() {
                         <TabsList className="grid w-full grid-cols-2">
                           <TabsTrigger value="total">Total</TabsTrigger>
                           <TabsTrigger value="anualizada">Anualizada</TabsTrigger>
-                        </List>
+                        </TabsList>
                         <TabsContent value="total" className="mt-4 text-center">
                             <p className="text-2xl font-bold text-primary">{((parseFloat(project.annualizedReturn) / 100) * (parseInt(project.term) / 12) * 100).toFixed(1)}%</p>
                         </TabsContent>
