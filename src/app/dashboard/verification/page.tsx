@@ -7,7 +7,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ShieldCheck, FileText, Lock, QrCode, Smartphone } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, FileText, Lock, Smartphone, HelpCircle, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
     Dialog,
@@ -120,22 +120,31 @@ export default function VerificationPage() {
                                                         </DialogTrigger>
                                                     </div>
                                                 </Card>
-                                                <DialogContent className="sm:max-w-md">
-                                                    <DialogHeader>
-                                                        <DialogTitle className="font-headline text-2xl flex items-center gap-2"><QrCode /> Verifica tu identidad</DialogTitle>
-                                                        <DialogDescription>
-                                                            Escanea el código QR con tu teléfono para continuar con la verificación de forma segura.
-                                                        </DialogDescription>
+                                                 <DialogContent className="sm:max-w-md p-8">
+                                                    <DialogHeader className="text-center">
+                                                        <DialogTitle className="font-headline text-2xl">Verificación de identidad</DialogTitle>
                                                     </DialogHeader>
-                                                    <div className="flex flex-col items-center justify-center space-y-6 py-6">
-                                                        <div className="rounded-lg border p-4 bg-white">
+                                                    <div className="flex flex-col items-center justify-center space-y-4 pt-4">
+                                                        <div className="rounded-lg border p-2 bg-white">
                                                             <Image src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://altopatrimonio.com/verify" alt="QR Code" width={200} height={200} data-ai-hint="qr code" />
                                                         </div>
-                                                        <p className="text-sm text-muted-foreground">¿No puedes escanear? No te preocupes.</p>
-                                                        <Button className="w-full">
-                                                            <Smartphone className="mr-2 h-4 w-4" />
-                                                            Continuar en el teléfono
+                                                        <div className="text-center">
+                                                            <h3 className="font-semibold text-foreground">Continúa desde tu teléfono</h3>
+                                                            <p className="text-sm text-muted-foreground max-w-xs mt-1">Por favor, escanea este código QR para comenzar la verificación de tu identidad</p>
+                                                        </div>
+                                                    </div>
+                                                     <div className="flex justify-between items-center mt-6 pt-6 border-t">
+                                                        <Button variant="link" className="text-xs text-muted-foreground p-0 h-auto">
+                                                            <HelpCircle className="h-4 w-4 mr-1.5" />
+                                                            ¿Por qué se necesita esto?
                                                         </Button>
+                                                        <Button variant="ghost" className="text-xs text-muted-foreground p-0 h-auto">
+                                                            Idioma: <span className="font-semibold text-foreground ml-1">Español</span>
+                                                            <ChevronDown className="h-4 w-4 ml-1" />
+                                                        </Button>
+                                                    </div>
+                                                    <div className="text-center mt-2">
+                                                        <p className="text-xs text-muted-foreground">Motorizado por ⚡️ AiPrise</p>
                                                     </div>
                                                 </DialogContent>
                                             </Dialog>
