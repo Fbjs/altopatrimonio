@@ -68,7 +68,6 @@ const UserSchema: Schema = new Schema({
   },
   verificationQrCode: {
     type: String,
-    select: false,
   },
   avatar: {
     type: String,

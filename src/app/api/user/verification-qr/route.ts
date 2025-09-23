@@ -14,7 +14,7 @@ export async function GET(req: NextRequest) {
     
     await connectToDatabase();
     
-    const user = await User.findById(userId).select('+verificationQrCode');
+    const user = await User.findById(userId);
     
     if (!user) {
       return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
