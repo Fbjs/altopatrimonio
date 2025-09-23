@@ -1,13 +1,13 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { ArrowLeft, ShieldCheck, FileText, Lock, ChevronDown, HelpCircle, Loader2, X } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, FileText, Lock, ChevronDown, HelpCircle, Loader2, CheckCircle, Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
     Dialog,
@@ -16,14 +16,24 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-    DialogClose,
 } from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 
+type VerificationStepStatus = "completed" | "active" | "locked";
 
-const verificationSteps = [
+type VerificationStep = {
+  id: string;
+  title: string;
+  description: string;
+  statusText: string;
+  buttonText: string;
+  status: VerificationStepStatus;
+};
+
+const initialVerificationSteps: VerificationStep[] = [
     { 
+        id: "identity",
         title: "Verificación de Identidad",
         description: "Confirma tu identidad de forma segura con tu documento.",
         statusText: "No se ha iniciado la verificación de identidad.",
@@ -31,6 +41,7 @@ const verificationSteps = [
         status: "active"
     },
     { 
+        id: "basic_info",
         title: "Información básica",
         description: "Cuéntanos un poco sobre ti.",
         statusText: "Bloqueado",
@@ -38,6 +49,7 @@ const verificationSteps = [
         status: "locked"
     },
     { 
+        id: "regulatory_questions",
         title: "Preguntas regulatorias",
         description: "Nos permite seguir los estándares de la CMF.",
         statusText: "Bloqueado",
@@ -45,6 +57,7 @@ const verificationSteps = [
         status: "locked"
     },
     { 
+        id: "investor_profile",
         title: "Perfil de inversionista",
         description: "Ayúdanos a conocer tu estilo como inversor.",
         statusText: "Bloqueado",
@@ -90,13 +103,13 @@ function WhyIsThisNeededDialog() {
 }
 
 
-function VerificationDialogContent() {
+function VerificationDialogContent({ onOpenChange }: { onOpenChange: (open: boolean) => void }) {
     const [qrUrl, setQrUrl] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const { toast } = useToast();
 
-    const fetchQrCode = async () => {
+    const fetchQrCode = useCallback(async () => {
         setIsLoading(true);
         setError(null);
         try {
@@ -117,14 +130,14 @@ function VerificationDialogContent() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [toast]);
     
     useEffect(() => {
         fetchQrCode();
-    }, []);
+    }, [fetchQrCode]);
     
     return (
-        <DialogContent className="sm:max-w-md p-8">
+        <DialogContent onOpenChange={onOpenChange} className="sm:max-w-md p-8">
             <DialogHeader className="text-center">
                 <DialogTitle className="font-headline text-2xl">Verificación de identidad</DialogTitle>
             </DialogHeader>
@@ -177,6 +190,62 @@ function VerificationDialogContent() {
 }
 
 export default function VerificationPage() {
+    const [steps, setSteps] = useState<VerificationStep[]>(initialVerificationSteps);
+    const [isPolling, setIsPolling] = useState(false);
+
+    const updateVerificationStatus = useCallback(async () => {
+        try {
+            const res = await fetch('/api/user/profile');
+            const user = await res.json();
+
+            if (user.idFrontImage && user.idBackImage) {
+                setSteps(prevSteps => {
+                    const newSteps = [...prevSteps];
+                    const identityStepIndex = newSteps.findIndex(s => s.id === "identity");
+                    if (identityStepIndex !== -1 && newSteps[identityStepIndex].status !== 'completed') {
+                        newSteps[identityStepIndex] = {
+                            ...newSteps[identityStepIndex],
+                            status: "completed",
+                            statusText: "Tu identidad ha sido verificada.",
+                            buttonText: "Completado"
+                        };
+                        const nextStepIndex = identityStepIndex + 1;
+                        if (nextStepIndex < newSteps.length) {
+                             newSteps[nextStepIndex].status = "active";
+                             newSteps[nextStepIndex].buttonText = "Completar";
+                        }
+                    }
+                    return newSteps;
+                });
+                setIsPolling(false);
+            }
+        } catch (error) {
+            console.error("Error al verificar el estado:", error);
+        }
+    }, []);
+
+    useEffect(() => {
+        let interval: NodeJS.Timeout;
+        if (isPolling) {
+            interval = setInterval(() => {
+                updateVerificationStatus();
+            }, 3000); // Poll every 3 seconds
+        }
+        return () => {
+            if (interval) clearInterval(interval);
+        };
+    }, [isPolling, updateVerificationStatus]);
+    
+    // Check status on initial load
+    useEffect(() => {
+        updateVerificationStatus();
+    }, [updateVerificationStatus]);
+
+
+    const completedSteps = steps.filter(step => step.status === 'completed').length;
+    const progress = (completedSteps / steps.length) * 100;
+
+
     return (
         <div>
             <Link href="/dashboard" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary mb-6">
@@ -194,41 +263,49 @@ export default function VerificationPage() {
                         <CardContent className="p-6">
                             <h2 className="text-lg font-semibold mb-2">Pasos de verificación</h2>
                             <div className="flex items-center gap-4 mb-6">
-                                <Progress value={0} className="h-2 w-full" />
-                                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">0% completado</span>
+                                <Progress value={progress} className="h-2 w-full" />
+                                <span className="text-sm font-medium text-muted-foreground whitespace-nowrap">{progress.toFixed(0)}% completado</span>
                             </div>
 
                             <div className="space-y-4">
-                                {verificationSteps.map((step, index) => {
-                                    if (step.title === "Verificación de Identidad") {
+                                {steps.map((step, index) => {
+                                    if (step.id === "identity") {
                                         return (
-                                            <Dialog key={index}>
+                                            <Dialog key={index} onOpenChange={(open) => setIsPolling(open && step.status !== 'completed')}>
                                                 <Card 
                                                     className={cn(
                                                         "p-6",
                                                         step.status === 'active' && 'border-primary ring-1 ring-primary bg-primary/5',
+                                                        step.status === 'completed' && 'border-green-500 ring-1 ring-green-500 bg-green-500/5'
                                                     )}
                                                 >
                                                     <div className="flex items-start gap-6">
                                                         <div className={cn(
                                                             "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold",
-                                                             step.status === 'active' ? 'bg-primary text-primary-foreground' : 'bg-border text-muted-foreground'
+                                                             step.status === 'active' && 'bg-primary text-primary-foreground',
+                                                             step.status === 'locked' && 'bg-border text-muted-foreground',
+                                                             step.status === 'completed' && 'bg-green-600 text-white'
                                                         )}>
-                                                            {index + 1}
+                                                            {step.status === 'completed' ? <Check size={20} /> : index + 1}
                                                         </div>
                                                         <div className="flex-1">
                                                             <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
                                                             <p className="text-sm text-muted-foreground">{step.description}</p>
-                                                            {step.status === 'active' && (
-                                                                <p className="text-sm text-muted-foreground mt-2">{step.statusText}</p>
-                                                            )}
+                                                            <p className={cn(
+                                                                "text-sm mt-2",
+                                                                step.status === 'completed' ? 'text-green-600' : 'text-muted-foreground'
+                                                            )}>
+                                                                {step.statusText}
+                                                            </p>
                                                         </div>
                                                         <DialogTrigger asChild>
-                                                            <Button>{step.buttonText}</Button>
+                                                            <Button disabled={step.status !== 'active'}>
+                                                                {step.buttonText}
+                                                            </Button>
                                                         </DialogTrigger>
                                                     </div>
                                                 </Card>
-                                                <VerificationDialogContent />
+                                                {step.status === 'active' && <VerificationDialogContent onOpenChange={(open) => setIsPolling(open)} />}
                                             </Dialog>
                                         )
                                     }
@@ -237,13 +314,15 @@ export default function VerificationPage() {
                                             key={index}
                                             className={cn(
                                                 "p-6",
-                                                step.status === 'locked' && 'bg-secondary/50'
+                                                step.status === 'locked' && 'bg-secondary/50',
+                                                step.status === 'active' && 'border-primary ring-1 ring-primary bg-primary/5',
                                             )}
                                         >
                                             <div className="flex items-start gap-6">
                                                 <div className={cn(
                                                     "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold",
-                                                    'bg-border text-muted-foreground'
+                                                    'bg-border text-muted-foreground',
+                                                     step.status === 'active' && 'bg-primary text-primary-foreground',
                                                 )}>
                                                     {index + 1}
                                                 </div>
@@ -251,7 +330,7 @@ export default function VerificationPage() {
                                                     <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
                                                     <p className="text-sm text-muted-foreground">{step.description}</p>
                                                 </div>
-                                                <Button disabled>
+                                                <Button disabled={step.status !== 'active'}>
                                                     {step.buttonText}
                                                 </Button>
                                             </div>

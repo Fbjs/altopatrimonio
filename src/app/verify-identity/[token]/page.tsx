@@ -1,18 +1,18 @@
 
 "use client";
 
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { HelpCircle, ChevronDown, ShieldCheck, Loader2, AlertTriangle, ArrowLeft, Camera, User, ChevronRight, Upload } from 'lucide-react';
+import { HelpCircle, ChevronDown, ShieldCheck, Loader2, AlertTriangle, ArrowLeft, User, ChevronRight, Upload, CheckCircle } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
-type VerificationStep = 'welcome' | 'document-select' | 'camera';
+type VerificationStep = 'welcome' | 'document-select' | 'camera' | 'uploading' | 'success';
 type DocumentSide = 'front' | 'back';
 
 export default function VerifyIdentityPage() {
@@ -20,34 +20,33 @@ export default function VerifyIdentityPage() {
     const [error, setError] = useState<string | null>(null);
     const [step, setStep] = useState<VerificationStep>('welcome');
     const [documentSide, setDocumentSide] = useState<DocumentSide>('front');
-    const [isUploading, setIsUploading] = useState(false);
     const params = useParams();
     const token = params.token as string;
     const router = useRouter();
 
-    useEffect(() => {
-        async function validateToken() {
-            if (!token) {
-                setError("Token de verificación no proporcionado.");
-                setIsValidating(false);
-                return;
-            }
-
-            try {
-                const res = await fetch(`/api/auth/verify-token/${token}`);
-                const data = await res.json();
-                if (!res.ok || !data.valid) {
-                    throw new Error(data.message || "Token inválido o expirado.");
-                }
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setIsValidating(false);
-            }
+    const validateToken = useCallback(async () => {
+        if (!token) {
+            setError("Token de verificación no proporcionado.");
+            setIsValidating(false);
+            return;
         }
 
-        validateToken();
+        try {
+            const res = await fetch(`/api/auth/verify-token/${token}`);
+            const data = await res.json();
+            if (!res.ok || !data.valid) {
+                throw new Error(data.message || "Token inválido o expirado.");
+            }
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsValidating(false);
+        }
     }, [token]);
+
+    useEffect(() => {
+        validateToken();
+    }, [validateToken]);
 
     const handleNextStep = (nextStep: VerificationStep) => {
         setStep(nextStep);
@@ -60,10 +59,6 @@ export default function VerifyIdentityPage() {
     const handleDocumentSideChange = (side: DocumentSide) => {
         setDocumentSide(side);
     }
-    
-    if (isUploading) {
-        return <UploadingState />;
-    }
 
     const renderStep = () => {
         switch (step) {
@@ -72,7 +67,17 @@ export default function VerifyIdentityPage() {
             case 'document-select':
                 return <DocumentSelectStep onBack={() => handleBackStep('welcome')} onNext={() => handleNextStep('camera')} />;
             case 'camera':
-                return <CameraStep onBack={() => handleBackStep('document-select')} currentSide={documentSide} onSideChange={handleDocumentSideChange} setIsUploading={setIsUploading} token={token} />;
+                return <CameraStep 
+                            onBack={() => handleBackStep('document-select')} 
+                            currentSide={documentSide} 
+                            onSideChange={handleDocumentSideChange} 
+                            setStep={setStep}
+                            token={token} 
+                        />;
+            case 'uploading':
+                return <UploadingState />;
+            case 'success':
+                return <SuccessStep />;
         }
     };
     
@@ -107,15 +112,17 @@ export default function VerifyIdentityPage() {
                 "flex-1 flex flex-col",
                 !isCameraStep && 'items-center justify-center p-6'
             )}>
-                {isCameraStep ? renderStep() : (
-                    <Card className="w-full max-w-sm p-0 shadow-none border-none bg-transparent">
-                        <CardContent className="p-0">
-                           {renderStep()}
-                        </CardContent>
-                    </Card>
-                )}
+                 {step === 'uploading' || step === 'success' ? renderStep() : (
+                     isCameraStep ? renderStep() : (
+                        <Card className="w-full max-w-sm p-0 shadow-none border-none bg-transparent">
+                            <CardContent className="p-0">
+                            {renderStep()}
+                            </CardContent>
+                        </Card>
+                    )
+                 )}
             </main>
-            {!isCameraStep && (
+            {step !== 'camera' && step !== 'uploading' && step !== 'success' && (
                  <footer className="text-center p-4 text-xs text-muted-foreground">
                     Motorizado por ⚡️ <span className="font-semibold">AiPrise</span>
                 </footer>
@@ -208,7 +215,7 @@ function DocumentSelectStep({ onBack, onNext }: { onBack: () => void; onNext: ()
     );
 }
 
-function CameraStep({ onBack, currentSide, onSideChange, setIsUploading, token }: { onBack: () => void; currentSide: DocumentSide; onSideChange: (side: DocumentSide) => void; setIsUploading: (isUploading: boolean) => void; token: string }) {
+function CameraStep({ onBack, currentSide, onSideChange, setStep, token }: { onBack: () => void; currentSide: DocumentSide; onSideChange: (side: DocumentSide) => void; setStep: (step: VerificationStep) => void; token: string }) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
     const { toast } = useToast();
@@ -245,7 +252,7 @@ function CameraStep({ onBack, currentSide, onSideChange, setIsUploading, token }
     }, [toast]);
 
     const uploadImage = async (imageData: string, side: DocumentSide) => {
-        setIsUploading(true);
+        setStep('uploading');
         try {
             const res = await fetch('/api/user/upload-identity', {
                 method: 'POST',
@@ -263,9 +270,8 @@ function CameraStep({ onBack, currentSide, onSideChange, setIsUploading, token }
                 description: error.message,
                 variant: "destructive",
             });
+            setStep('camera'); // Return to camera on error
             return null;
-        } finally {
-            setIsUploading(false);
         }
     };
     
@@ -290,13 +296,9 @@ function CameraStep({ onBack, currentSide, onSideChange, setIsUploading, token }
                     description: "La foto del frente de tu documento ha sido subida."
                 });
                 onSideChange('back');
+                setStep('camera');
             } else {
-                toast({
-                    title: "Verificación Completa",
-                    description: "Tus documentos han sido subidos con éxito."
-                });
-                // Maybe close the window/tab or show a success message
-                 onBack();
+                setStep('success');
             }
         }
     };
@@ -314,9 +316,9 @@ function CameraStep({ onBack, currentSide, onSideChange, setIsUploading, token }
                  if (currentSide === 'front') {
                     toast({ title: "Frente Subido", description: "La foto del frente de tu documento ha sido subida." });
                     onSideChange('back');
+                    setStep('camera');
                 } else {
-                    toast({ title: "Verificación Completa", description: "Tus documentos han sido subidos con éxito." });
-                    onBack();
+                    setStep('success');
                 }
             }
         };
@@ -329,8 +331,8 @@ function CameraStep({ onBack, currentSide, onSideChange, setIsUploading, token }
             <div className="absolute inset-0 bg-black/30" />
 
             <div className="relative z-10 flex flex-col h-full justify-between">
-                 <header className="flex items-center justify-center p-4">
-                     <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 top-4 text-white hover:bg-white/10 rounded-full">
+                <header className="flex items-center justify-center p-4">
+                    <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 top-4 text-white hover:bg-white/10 rounded-full">
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
                     <h1 className="text-xl font-semibold text-white">
@@ -348,16 +350,16 @@ function CameraStep({ onBack, currentSide, onSideChange, setIsUploading, token }
                 </div>
 
                 <div className="z-10 flex items-center justify-around p-8 bg-black/50">
-                    <div className="flex flex-col items-center gap-2 w-20">
+                    <div className="flex flex-col items-center gap-2 w-20 text-center">
                         <Button variant="ghost" className="h-12 w-12 p-0 text-white" onClick={() => fileInputRef.current?.click()}>
                            <Upload className="h-7 w-7"/>
                         </Button>
-                        <span className="text-sm font-medium">Cargar archivo</span>
+                        <span className="text-xs font-medium">Cargar archivo</span>
                         <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                     </div>
                     <button
                         onClick={handleCapture}
-                        disabled={!hasCameraPermission}
+                        disabled={hasCameraPermission === false}
                         className="w-20 h-20 rounded-full bg-white flex items-center justify-center ring-4 ring-white/50 disabled:opacity-50"
                         aria-label="Tomar foto"
                     >
@@ -390,4 +392,14 @@ function UploadingState() {
     );
 }
 
-    
+function SuccessStep() {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-900 text-white p-4 text-center">
+             <CheckCircle className="h-16 w-16 text-green-500 mb-6" />
+            <h1 className="font-headline text-3xl font-bold text-white">¡Todo listo!</h1>
+            <p className="mt-2 text-gray-400 max-w-sm">
+                Ya puedes volver a tu computador para continuar con los siguientes pasos de la verificación.
+            </p>
+        </div>
+    );
+}

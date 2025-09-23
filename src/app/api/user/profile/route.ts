@@ -13,13 +13,22 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'No autorizado.' }, { status: 401 });
     }
 
-    const user = await User.findById(userId);
+    const user = await User.findById(userId).select('+idFrontImage +idBackImage');
 
     if (!user) {
       return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
     }
+    
+    const profileData = {
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        role: user.role,
+        idFrontImage: !!user.idFrontImage,
+        idBackImage: !!user.idBackImage,
+    };
 
-    return NextResponse.json({ name: user.name, email: user.email, avatar: user.avatar, role: user.role }, { status: 200 });
+    return NextResponse.json(profileData, { status: 200 });
   } catch (error: any) {
     console.error('Error al obtener el perfil:', error.message);
     return NextResponse.json({ message: error.message || 'Error interno del servidor.' }, { status: 500 });
