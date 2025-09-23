@@ -13,11 +13,13 @@ import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
 type VerificationStep = 'welcome' | 'document-select' | 'camera';
+type DocumentSide = 'front' | 'back';
 
 export default function VerifyIdentityPage() {
     const [isValidating, setIsValidating] = useState(true);
     const [error, setError] = useState<string | null>(null);
     const [step, setStep] = useState<VerificationStep>('welcome');
+    const [documentSide, setDocumentSide] = useState<DocumentSide>('front');
     const params = useParams();
     const token = params.token as string;
     const router = useRouter();
@@ -46,14 +48,26 @@ export default function VerifyIdentityPage() {
         validateToken();
     }, [token]);
 
+    const handleNextStep = (nextStep: VerificationStep) => {
+        setStep(nextStep);
+    };
+
+    const handleBackStep = (prevStep: VerificationStep) => {
+        setStep(prevStep);
+    }
+
+    const handleDocumentSideChange = (side: DocumentSide) => {
+        setDocumentSide(side);
+    }
+
     const renderStep = () => {
         switch (step) {
             case 'welcome':
-                return <WelcomeStep onNext={() => setStep('document-select')} />;
+                return <WelcomeStep onNext={() => handleNextStep('document-select')} />;
             case 'document-select':
-                return <DocumentSelectStep onBack={() => setStep('welcome')} onNext={() => setStep('camera')} />;
+                return <DocumentSelectStep onBack={() => handleBackStep('welcome')} onNext={() => handleNextStep('camera')} />;
             case 'camera':
-                return <CameraStep onBack={() => setStep('document-select')} />;
+                return <CameraStep onBack={() => handleBackStep('document-select')} currentSide={documentSide} onSideChange={handleDocumentSideChange} />;
         }
     };
     
@@ -148,8 +162,8 @@ function WelcomeStep({ onNext }: { onNext: () => void }) {
 function DocumentSelectStep({ onBack, onNext }: { onBack: () => void; onNext: () => void }) {
     return (
         <div className="text-left w-full">
-            <header className="flex items-center mb-8">
-                <Button variant="ghost" size="icon" onClick={onBack} className="mr-2 hover:bg-gray-800">
+            <header className="flex items-center mb-8 px-4">
+                <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2 mr-2 hover:bg-gray-800">
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
             </header>
@@ -160,7 +174,7 @@ function DocumentSelectStep({ onBack, onNext }: { onBack: () => void; onNext: ()
                      <Button variant="outline" className="w-full justify-between h-12 text-base bg-gray-800 border-gray-700 hover:bg-gray-700">
                         <div className="flex items-center gap-2">
                             <Image src="https://flagcdn.com/w40/cl.png" width={24} height={16} alt="Bandera de Chile"/>
-                            <span>Chile</span>
+                            <span className="text-white">Chile</span>
                         </div>
                         <ChevronDown className="h-5 w-5 opacity-50"/>
                     </Button>
@@ -189,7 +203,7 @@ function DocumentSelectStep({ onBack, onNext }: { onBack: () => void; onNext: ()
     );
 }
 
-function CameraStep({ onBack }: { onBack: () => void }) {
+function CameraStep({ onBack, currentSide, onSideChange }: { onBack: () => void; currentSide: DocumentSide; onSideChange: (side: DocumentSide) => void; }) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
     const { toast } = useToast();
@@ -225,10 +239,24 @@ function CameraStep({ onBack }: { onBack: () => void }) {
     }, [toast]);
 
     const handleCapture = () => {
-        toast({
-            title: "Foto Capturada",
-            description: "La foto de tu documento ha sido capturada (simulación)."
-        })
+        if (currentSide === 'front') {
+            toast({
+                title: "Frente Capturado",
+                description: "La foto del frente de tu documento ha sido capturada (simulación)."
+            });
+            onSideChange('back');
+        } else {
+            toast({
+                title: "Reverso Capturado",
+                description: "La foto del reverso de tu documento ha sido capturada (simulación)."
+            });
+            // Here you would typically submit the photos and proceed
+            toast({
+                title: "Verificación en Proceso",
+                description: "Tus documentos han sido enviados para verificación."
+            })
+            onBack(); // Go back to document selection for now
+        }
     }
     
     const fileInputRef = useRef<HTMLInputElement>(null);
@@ -239,11 +267,13 @@ function CameraStep({ onBack }: { onBack: () => void }) {
             <div className="absolute inset-0 bg-black/30" />
 
             <div className="relative z-10 flex flex-col h-full justify-between">
-                <header className="flex items-center justify-between p-4">
-                     <Button variant="ghost" size="icon" onClick={onBack} className="text-white hover:bg-white/10 rounded-full">
+                <header className="flex items-center justify-center p-4">
+                     <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 top-4 text-white hover:bg-white/10 rounded-full">
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
-                    <h1 className="text-xl font-semibold text-white absolute left-1/2 -translate-x-1/2">Frente de la Identificación Nacional</h1>
+                    <h1 className="text-xl font-semibold text-white">
+                        {currentSide === 'front' ? 'Frente de la Identificación Nacional' : 'Reverso de la Identificación Nacional'}
+                    </h1>
                 </header>
                 
                 <div className="flex-1 flex flex-col items-center justify-center text-white text-center px-4">
@@ -259,7 +289,7 @@ function CameraStep({ onBack }: { onBack: () => void }) {
                 </div>
 
                 <div className="z-10 flex items-center justify-around p-8 bg-black/50">
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-2 w-20">
                         <Button variant="ghost" className="h-12 w-12 p-0 text-white" onClick={() => fileInputRef.current?.click()}>
                            <Upload className="h-7 w-7"/>
                         </Button>
@@ -274,7 +304,7 @@ function CameraStep({ onBack }: { onBack: () => void }) {
                     >
                         <div className="w-[70px] h-[70px] rounded-full bg-white border-4 border-blue-600"></div>
                     </button>
-                    <div className="w-12 h-12"></div>
+                    <div className="w-20 h-12"></div>
                 </div>
 
                  {hasCameraPermission === false && (
@@ -292,5 +322,3 @@ function CameraStep({ onBack }: { onBack: () => void }) {
     );
 }
 
-
-    
