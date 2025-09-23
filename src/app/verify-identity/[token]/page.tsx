@@ -6,11 +6,12 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { HelpCircle, ChevronDown, ShieldCheck, Loader2, AlertTriangle, ArrowLeft, User, ChevronRight, Upload, CheckCircle, Sun, Layers } from 'lucide-react';
+import { HelpCircle, ChevronDown, ShieldCheck, Loader2, AlertTriangle, ArrowLeft, User, ChevronRight, Upload, CheckCircle, Sun, Layers, XCircle, CheckCircle2 } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogClose } from '@/components/ui/dialog';
 
 type VerificationStep = 'welcome' | 'document-select' | 'camera' | 'preview' | 'uploading' | 'success';
 type DocumentSide = 'front' | 'back';
@@ -351,6 +352,63 @@ function CameraStep({ onBack, currentSide, onImageCapture }: { onBack: () => voi
     );
 }
 
+function PhotoQualityGuideDialog() {
+    const IdCard = ({ isGood, isBlurred }: { isGood: boolean, isBlurred?: boolean }) => (
+        <div className={cn(
+            "relative rounded-lg p-3 w-40 h-24 border-2 flex flex-col justify-between",
+            isGood ? "bg-gray-100 border-green-500" : "bg-gray-600 border-red-500"
+        )}>
+            {isBlurred ? (
+                 <div className="w-full h-full bg-black/80 rounded-md" />
+            ) : (
+                <div className="flex gap-2 items-center">
+                    <div className={cn("w-8 h-8 rounded-full flex items-center justify-center", isGood ? "bg-gray-300" : "bg-gray-500")}>
+                        <User className={cn("h-5 w-5", isGood ? "text-gray-600" : "text-gray-400")} />
+                    </div>
+                    <div className="flex-1">
+                        <p className={cn("text-xs font-bold", isGood ? "text-gray-800" : "text-gray-300")}>John Doe</p>
+                        <p className={cn("text-[10px]", isGood ? "text-gray-600" : "text-gray-400")}>01-Mar-1996</p>
+                    </div>
+                </div>
+            )}
+            <div className={cn(
+                "absolute -bottom-3 -right-3 w-6 h-6 rounded-full flex items-center justify-center",
+                isGood ? "bg-green-500 text-white" : "bg-red-500 text-white"
+            )}>
+                {isGood ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
+            </div>
+        </div>
+    );
+
+    return (
+        <DialogContent className="max-w-sm text-gray-900">
+            <DialogHeader>
+                <DialogTitle className="text-xl font-bold text-center">Guía de calidad de foto</DialogTitle>
+                 <DialogClose className="text-gray-400 hover:text-gray-600" />
+            </DialogHeader>
+            <p className="text-center text-gray-500 text-sm">
+                Asegúrese de que reune los siguientes criterios para enviar los documentos KYC.
+            </p>
+            <div className="mt-6 space-y-6">
+                <div>
+                    <h3 className="font-semibold mb-3">Buena iluminación</h3>
+                    <div className="flex justify-center gap-4">
+                        <IdCard isGood={true} />
+                        <IdCard isGood={false} />
+                    </div>
+                </div>
+                 <div>
+                    <h3 className="font-semibold mb-3">Sin difuminación</h3>
+                    <div className="flex justify-center gap-4">
+                        <IdCard isGood={true} />
+                        <IdCard isGood={false} isBlurred={true} />
+                    </div>
+                </div>
+            </div>
+        </DialogContent>
+    );
+}
+
 function PreviewStep({ image, documentSide, onRetake, onConfirm }: { image: string; documentSide: DocumentSide; onRetake: () => void; onConfirm: () => void; }) {
     return (
         <div className="flex flex-col h-screen w-full bg-gray-900">
@@ -372,7 +430,14 @@ function PreviewStep({ image, documentSide, onRetake, onConfirm }: { image: stri
                     <div className="flex items-center gap-2 text-sm text-white">
                         <Layers className="h-5 w-5" />
                         <span>Sin difuminación</span>
-                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                         <Dialog>
+                            <DialogTrigger asChild>
+                                <button className="ml-1">
+                                    <HelpCircle className="h-4 w-4 text-gray-400" />
+                                </button>
+                            </DialogTrigger>
+                            <PhotoQualityGuideDialog />
+                        </Dialog>
                     </div>
                 </div>
                 
@@ -452,5 +517,4 @@ function SuccessStep() {
         </div>
     );
 }
-
 
