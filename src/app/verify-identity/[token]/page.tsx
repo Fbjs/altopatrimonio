@@ -36,7 +36,7 @@ export default function VerifyIdentityPage() {
         try {
             const res = await fetch(`/api/auth/verify-token/${token}`);
             const data = await res.json();
-            if (!res.ok || !data.valid) {
+            if (!res.ok || !data.isValid) {
                 throw new Error(data.message || "Token inválido o expirado.");
             }
         } catch (err: any) {
@@ -517,4 +517,3 @@ function SuccessStep() {
         </div>
     );
 }
-
