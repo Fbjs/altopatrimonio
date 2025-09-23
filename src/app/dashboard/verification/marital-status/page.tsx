@@ -54,8 +54,7 @@ export default function MaritalStatusPage() {
               title: "Estado Civil Guardado",
               description: "Tu información ha sido guardada con éxito.",
             });
-            // Redirect to the next step when ready
-            // router.push('/dashboard/verification/next-step');
+            router.push('/dashboard/verification/nationality');
         } catch (error: any) {
             toast({
                 title: "Error",

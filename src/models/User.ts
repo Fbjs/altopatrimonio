@@ -30,6 +30,7 @@ export interface IUser extends Document {
     birthDate: Date;
     idExpiryDate: Date;
     maritalStatus?: string;
+    nationality?: boolean;
   };
   address?: {
     street: string;
@@ -99,6 +100,7 @@ const UserSchema: Schema = new Schema({
     birthDate: Date,
     idExpiryDate: Date,
     maritalStatus: String,
+    nationality: Boolean,
   },
   address: {
     street: String,
