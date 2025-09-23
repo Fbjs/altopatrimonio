@@ -4,7 +4,9 @@ import { jwtVerify, type JWTPayload } from 'jose';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-const PUBLIC_PATHS = ['/', '/login', '/register', '/contact', '/privacy', '/terms'];
+const PUBLIC_PATHS = ['/', '/login', '/register', '/contact', '/privacy', '/terms', '/projects'];
+const API_AUTH_PREFIX = '/api/auth';
+const VERIFY_IDENTITY_PREFIX = '/verify-identity';
 
 async function verifyToken(token: string): Promise<JWTPayload | null> {
     if (!JWT_SECRET) {
@@ -15,6 +17,7 @@ async function verifyToken(token: string): Promise<JWTPayload | null> {
         const { payload } = await jwtVerify(token, new TextEncoder().encode(JWT_SECRET));
         return payload;
     } catch (err) {
+        // console.error('Error al verificar el token:', err);
         return null;
     }
 }
@@ -22,21 +25,23 @@ async function verifyToken(token: string): Promise<JWTPayload | null> {
 export async function middleware(request: NextRequest) {
     const { pathname } = request.nextUrl;
     const token = request.cookies.get('token')?.value;
-    
-    // Allow API routes for auth and verification to pass through without a token.
-    if (pathname.startsWith('/api/auth/')) {
+
+    // Allow public API routes for auth and verification to pass through.
+    if (pathname.startsWith(API_AUTH_PREFIX) || pathname.startsWith(VERIFY_IDENTITY_PREFIX)) {
         return NextResponse.next();
     }
+    
+    // Check for project detail pages like /projects/some-slug
+    const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
 
     const payload = token ? await verifyToken(token) : null;
     
     const requestHeaders = new Headers(request.headers);
-    if (payload?.userId) {
+    if (payload?.userId && payload.role) {
         requestHeaders.set('x-user-id', payload.userId as string);
         requestHeaders.set('x-user-role', payload.role as string);
     }
     
-    const isPublicPath = PUBLIC_PATHS.some(path => pathname === path);
     const isDashboardPath = pathname.startsWith('/dashboard');
 
     if (payload) {
@@ -65,5 +70,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+  matcher: ['/((?!_next/static|_next/image|logo.png|favicon.ico).*)'],
 };
