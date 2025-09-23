@@ -20,6 +20,8 @@ export interface IUser extends Document {
     theme: 'light' | 'dark' | 'system';
     language: 'es' | 'en';
   };
+  idFrontImage?: string;
+  idBackImage?: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -72,7 +74,9 @@ const UserSchema: Schema = new Schema({
     },
     theme: { type: String, default: 'system' },
     language: { type: String, default: 'es' },
-  }
+  },
+  idFrontImage: { type: String, select: false },
+  idBackImage: { type: String, select: false },
 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

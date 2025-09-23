@@ -20,6 +20,7 @@ export default function VerifyIdentityPage() {
     const [error, setError] = useState<string | null>(null);
     const [step, setStep] = useState<VerificationStep>('welcome');
     const [documentSide, setDocumentSide] = useState<DocumentSide>('front');
+    const [isUploading, setIsUploading] = useState(false);
     const params = useParams();
     const token = params.token as string;
     const router = useRouter();
@@ -59,6 +60,10 @@ export default function VerifyIdentityPage() {
     const handleDocumentSideChange = (side: DocumentSide) => {
         setDocumentSide(side);
     }
+    
+    if (isUploading) {
+        return <UploadingState />;
+    }
 
     const renderStep = () => {
         switch (step) {
@@ -67,7 +72,7 @@ export default function VerifyIdentityPage() {
             case 'document-select':
                 return <DocumentSelectStep onBack={() => handleBackStep('welcome')} onNext={() => handleNextStep('camera')} />;
             case 'camera':
-                return <CameraStep onBack={() => handleBackStep('document-select')} currentSide={documentSide} onSideChange={handleDocumentSideChange} />;
+                return <CameraStep onBack={() => handleBackStep('document-select')} currentSide={documentSide} onSideChange={handleDocumentSideChange} setIsUploading={setIsUploading} />;
         }
     };
     
@@ -203,10 +208,11 @@ function DocumentSelectStep({ onBack, onNext }: { onBack: () => void; onNext: ()
     );
 }
 
-function CameraStep({ onBack, currentSide, onSideChange }: { onBack: () => void; currentSide: DocumentSide; onSideChange: (side: DocumentSide) => void; }) {
+function CameraStep({ onBack, currentSide, onSideChange, setIsUploading }: { onBack: () => void; currentSide: DocumentSide; onSideChange: (side: DocumentSide) => void; setIsUploading: (isUploading: boolean) => void; }) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
     const { toast } = useToast();
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         const getCameraPermission = async () => {
@@ -238,28 +244,83 @@ function CameraStep({ onBack, currentSide, onSideChange }: { onBack: () => void;
         };
     }, [toast]);
 
-    const handleCapture = () => {
-        if (currentSide === 'front') {
-            toast({
-                title: "Frente Capturado",
-                description: "La foto del frente de tu documento ha sido capturada (simulación)."
+    const uploadImage = async (imageData: string, side: DocumentSide) => {
+        setIsUploading(true);
+        try {
+            const res = await fetch('/api/user/upload-identity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ side, imageData }),
             });
-            onSideChange('back');
-        } else {
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al subir la imagen.');
+            }
+            return data;
+        } catch (error: any) {
             toast({
-                title: "Reverso Capturado",
-                description: "La foto del reverso de tu documento ha sido capturada (simulación)."
+                title: "Error de Subida",
+                description: error.message,
+                variant: "destructive",
             });
-            // Here you would typically submit the photos and proceed
-            toast({
-                title: "Verificación en Proceso",
-                description: "Tus documentos han sido enviados para verificación."
-            })
-            onBack(); // Go back to document selection for now
+            return null;
+        } finally {
+            setIsUploading(false);
         }
-    }
+    };
     
-    const fileInputRef = useRef<HTMLInputElement>(null);
+    const handleCapture = async () => {
+        if (!videoRef.current) return;
+        
+        const canvas = document.createElement('canvas');
+        canvas.width = videoRef.current.videoWidth;
+        canvas.height = videoRef.current.videoHeight;
+        const context = canvas.getContext('2d');
+        if (!context) return;
+        
+        context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
+        const imageData = canvas.toDataURL('image/jpeg');
+        
+        const result = await uploadImage(imageData, currentSide);
+
+        if (result) {
+            if (currentSide === 'front') {
+                toast({
+                    title: "Frente Capturado",
+                    description: "La foto del frente de tu documento ha sido subida."
+                });
+                onSideChange('back');
+            } else {
+                toast({
+                    title: "Verificación Completa",
+                    description: "Tus documentos han sido subidos con éxito."
+                });
+                onBack(); // Or navigate to a success page
+            }
+        }
+    };
+
+    const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const imageData = reader.result as string;
+            const result = await uploadImage(imageData, currentSide);
+
+            if (result) {
+                 if (currentSide === 'front') {
+                    toast({ title: "Frente Subido", description: "La foto del frente de tu documento ha sido subida." });
+                    onSideChange('back');
+                } else {
+                    toast({ title: "Verificación Completa", description: "Tus documentos han sido subidos con éxito." });
+                    onBack();
+                }
+            }
+        };
+        reader.readAsDataURL(file);
+    };
 
     return (
         <div className="relative w-full h-screen flex flex-col">
@@ -267,7 +328,7 @@ function CameraStep({ onBack, currentSide, onSideChange }: { onBack: () => void;
             <div className="absolute inset-0 bg-black/30" />
 
             <div className="relative z-10 flex flex-col h-full justify-between">
-                <header className="flex items-center justify-center p-4">
+                 <header className="flex items-center justify-center p-4">
                      <Button variant="ghost" size="icon" onClick={onBack} className="absolute left-4 top-4 text-white hover:bg-white/10 rounded-full">
                         <ArrowLeft className="h-6 w-6" />
                     </Button>
@@ -282,9 +343,6 @@ function CameraStep({ onBack, currentSide, onSideChange }: { onBack: () => void;
                         <div className="absolute top-0 right-0 w-12 h-12 border-t-4 border-r-4 border-white rounded-tr-lg" />
                         <div className="absolute bottom-0 left-0 w-12 h-12 border-b-4 border-l-4 border-white rounded-bl-lg" />
                         <div className="absolute bottom-0 right-0 w-12 h-12 border-b-4 border-r-4 border-white rounded-br-lg" />
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <User className="w-24 h-24 text-white/50" />
-                        </div>
                     </div>
                 </div>
 
@@ -294,7 +352,7 @@ function CameraStep({ onBack, currentSide, onSideChange }: { onBack: () => void;
                            <Upload className="h-7 w-7"/>
                         </Button>
                         <span className="text-sm font-medium">Cargar archivo</span>
-                        <input type="file" ref={fileInputRef} className="hidden" accept="image/*" />
+                        <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
                     </div>
                     <button
                         onClick={handleCapture}
@@ -318,6 +376,15 @@ function CameraStep({ onBack, currentSide, onSideChange }: { onBack: () => void;
                     </div>
                 )}
             </div>
+        </div>
+    );
+}
+
+function UploadingState() {
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
+            <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
+            <p className="text-lg font-semibold">Subiendo...</p>
         </div>
     );
 }
