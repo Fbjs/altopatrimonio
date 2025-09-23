@@ -19,6 +19,7 @@ import {
 } from "@/components/ui/dialog"
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useRouter } from 'next/navigation';
 
 type VerificationStepStatus = "completed" | "active" | "locked";
 
@@ -29,42 +30,8 @@ type VerificationStep = {
   statusText: string;
   buttonText: string;
   status: VerificationStepStatus;
+  action?: () => void;
 };
-
-const initialVerificationSteps: VerificationStep[] = [
-    { 
-        id: "identity",
-        title: "Verificación de Identidad",
-        description: "Confirma tu identidad de forma segura con tu documento.",
-        statusText: "No se ha iniciado la verificación de identidad.",
-        buttonText: "Completar",
-        status: "active"
-    },
-    { 
-        id: "basic_info",
-        title: "Información básica",
-        description: "Cuéntanos un poco sobre ti.",
-        statusText: "Bloqueado",
-        buttonText: "Bloqueado",
-        status: "locked"
-    },
-    { 
-        id: "regulatory_questions",
-        title: "Preguntas regulatorias",
-        description: "Nos permite seguir los estándares de la CMF.",
-        statusText: "Bloqueado",
-        buttonText: "Bloqueado",
-        status: "locked"
-    },
-    { 
-        id: "investor_profile",
-        title: "Perfil de inversionista",
-        description: "Ayúdanos a conocer tu estilo como inversor.",
-        statusText: "Bloqueado",
-        buttonText: "Bloqueado",
-        status: "locked"
-    },
-];
 
 const whyImportant = [
     {
@@ -190,35 +157,72 @@ function VerificationDialogContent({ onOpenChange }: { onOpenChange: (open: bool
 }
 
 export default function VerificationPage() {
+    const router = useRouter();
+    const initialVerificationSteps: VerificationStep[] = [
+        { 
+            id: "identity",
+            title: "Verificación de Identidad",
+            description: "Confirma tu identidad de forma segura con tu documento.",
+            statusText: "No se ha iniciado la verificación de identidad.",
+            buttonText: "Completar",
+            status: "active"
+        },
+        { 
+            id: "basic_info",
+            title: "Información básica",
+            description: "Cuéntanos un poco sobre ti.",
+            statusText: "Bloqueado",
+            buttonText: "Bloqueado",
+            status: "locked",
+            action: () => router.push('/dashboard/verification/personal-data')
+        },
+        { 
+            id: "regulatory_questions",
+            title: "Preguntas regulatorias",
+            description: "Nos permite seguir los estándares de la CMF.",
+            statusText: "Bloqueado",
+            buttonText: "Bloqueado",
+            status: "locked"
+        },
+        { 
+            id: "investor_profile",
+            title: "Perfil de inversionista",
+            description: "Ayúdanos a conocer tu estilo como inversor.",
+            statusText: "Bloqueado",
+            buttonText: "Bloqueado",
+            status: "locked"
+        },
+    ];
+
     const [steps, setSteps] = useState<VerificationStep[]>(initialVerificationSteps);
     const [isPolling, setIsPolling] = useState(false);
 
     const updateVerificationStatus = useCallback(async () => {
         try {
             const res = await fetch('/api/user/profile');
+            if (!res.ok) return;
             const user = await res.json();
 
-            if (user.idFrontImage && user.idBackImage) {
-                setSteps(prevSteps => {
-                    const newSteps = [...prevSteps];
-                    const identityStepIndex = newSteps.findIndex(s => s.id === "identity");
-                    if (identityStepIndex !== -1 && newSteps[identityStepIndex].status !== 'completed') {
-                        newSteps[identityStepIndex] = {
-                            ...newSteps[identityStepIndex],
-                            status: "completed",
-                            statusText: "Tu identidad ha sido verificada.",
-                            buttonText: "Completado"
-                        };
-                        const nextStepIndex = identityStepIndex + 1;
-                        if (nextStepIndex < newSteps.length) {
-                             newSteps[nextStepIndex].status = "active";
-                             newSteps[nextStepIndex].buttonText = "Completar";
-                        }
+            setSteps(prevSteps => {
+                const newSteps = [...prevSteps];
+                const identityStepIndex = newSteps.findIndex(s => s.id === "identity");
+
+                if (identityStepIndex !== -1 && newSteps[identityStepIndex].status !== 'completed' && user.idFrontImage && user.idBackImage) {
+                    newSteps[identityStepIndex] = {
+                        ...newSteps[identityStepIndex],
+                        status: "completed",
+                        statusText: "Tu identidad ha sido verificada.",
+                        buttonText: "Completado"
+                    };
+                    const nextStepIndex = identityStepIndex + 1;
+                    if (nextStepIndex < newSteps.length) {
+                         newSteps[nextStepIndex].status = "active";
+                         newSteps[nextStepIndex].buttonText = "Completar";
                     }
-                    return newSteps;
-                });
-                setIsPolling(false);
-            }
+                    setIsPolling(false);
+                }
+                return newSteps;
+            });
         } catch (error) {
             console.error("Error al verificar el estado:", error);
         }
@@ -269,73 +273,54 @@ export default function VerificationPage() {
 
                             <div className="space-y-4">
                                 {steps.map((step, index) => {
-                                    if (step.id === "identity") {
-                                        return (
-                                            <Dialog key={index} onOpenChange={(open) => setIsPolling(open && step.status !== 'completed')}>
-                                                <Card 
-                                                    className={cn(
-                                                        "p-6",
-                                                        step.status === 'active' && 'border-primary ring-1 ring-primary bg-primary/5',
-                                                        step.status === 'completed' && 'border-green-500 ring-1 ring-green-500 bg-green-500/5'
-                                                    )}
-                                                >
-                                                    <div className="flex items-start gap-6">
-                                                        <div className={cn(
-                                                            "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold",
-                                                             step.status === 'active' && 'bg-primary text-primary-foreground',
-                                                             step.status === 'locked' && 'bg-border text-muted-foreground',
-                                                             step.status === 'completed' && 'bg-green-600 text-white'
-                                                        )}>
-                                                            {step.status === 'completed' ? <Check size={20} /> : index + 1}
-                                                        </div>
-                                                        <div className="flex-1">
-                                                            <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
-                                                            <p className="text-sm text-muted-foreground">{step.description}</p>
-                                                            <p className={cn(
-                                                                "text-sm mt-2",
-                                                                step.status === 'completed' ? 'text-green-600' : 'text-muted-foreground'
-                                                            )}>
-                                                                {step.statusText}
-                                                            </p>
-                                                        </div>
-                                                        <DialogTrigger asChild>
-                                                            <Button disabled={step.status !== 'active'}>
-                                                                {step.buttonText}
-                                                            </Button>
-                                                        </DialogTrigger>
-                                                    </div>
-                                                </Card>
-                                                {step.status === 'active' && <VerificationDialogContent onOpenChange={(open) => setIsPolling(open)} />}
-                                            </Dialog>
-                                        )
-                                    }
-                                    return (
-                                        <Card 
-                                            key={index}
+                                    const isStepDisabled = step.status !== 'active';
+                                    const CardComponent = (
+                                         <Card 
                                             className={cn(
                                                 "p-6",
                                                 step.status === 'locked' && 'bg-secondary/50',
                                                 step.status === 'active' && 'border-primary ring-1 ring-primary bg-primary/5',
+                                                step.status === 'completed' && 'border-green-500 ring-1 ring-green-500 bg-green-500/5'
                                             )}
                                         >
                                             <div className="flex items-start gap-6">
                                                 <div className={cn(
-                                                    "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold",
-                                                    'bg-border text-muted-foreground',
+                                                    "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold flex-shrink-0",
+                                                     step.status === 'locked' && 'bg-border text-muted-foreground',
                                                      step.status === 'active' && 'bg-primary text-primary-foreground',
+                                                     step.status === 'completed' && 'bg-green-600 text-white'
                                                 )}>
-                                                    {index + 1}
+                                                    {step.status === 'completed' ? <Check size={20} /> : index + 1}
                                                 </div>
                                                 <div className="flex-1">
                                                     <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
                                                     <p className="text-sm text-muted-foreground">{step.description}</p>
+                                                    {step.status === 'completed' && (
+                                                        <p className="text-sm mt-2 text-green-600">{step.statusText}</p>
+                                                    )}
                                                 </div>
-                                                <Button disabled={step.status !== 'active'}>
+                                                <Button 
+                                                    onClick={step.action}
+                                                    disabled={isStepDisabled}
+                                                    className={cn(step.status === 'completed' && 'bg-green-600 hover:bg-green-700')}
+                                                >
                                                     {step.buttonText}
                                                 </Button>
                                             </div>
                                         </Card>
-                                    )
+                                    );
+
+                                    if (step.id === "identity") {
+                                        return (
+                                            <Dialog key={index} onOpenChange={(open) => setIsPolling(open && step.status !== 'completed')}>
+                                                 <DialogTrigger asChild disabled={isStepDisabled}>
+                                                    {CardComponent}
+                                                 </DialogTrigger>
+                                                {!isStepDisabled && <VerificationDialogContent onOpenChange={(open) => setIsPolling(open)} />}
+                                            </Dialog>
+                                        )
+                                    }
+                                    return <div key={index}>{CardComponent}</div>
                                 })}
                             </div>
                         </CardContent>
