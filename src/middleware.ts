@@ -4,7 +4,7 @@ import { jwtVerify, type JWTPayload } from 'jose';
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
-const PUBLIC_PATHS = ['/', '/login', '/register', '/contact', '/privacy', '/terms', '/projects'];
+const PUBLIC_PATHS = ['/', '/login', '/register', '/contact', '/privacy', '/terms'];
 const API_AUTH_PREFIX = '/api/auth';
 const VERIFY_IDENTITY_PREFIX = '/verify-identity';
 
@@ -32,7 +32,7 @@ export async function middleware(request: NextRequest) {
     }
     
     // Check for project detail pages like /projects/some-slug
-    const isPublicPath = PUBLIC_PATHS.some(path => pathname.startsWith(path));
+    const isPublicPath = PUBLIC_PATHS.some(path => pathname === path) || pathname.startsWith('/projects/');
 
     const payload = token ? await verifyToken(token) : null;
     
