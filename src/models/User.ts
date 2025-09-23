@@ -29,7 +29,7 @@ export interface IUser extends Document {
     gender: string;
     birthDate: Date;
     idExpiryDate: Date;
-  },
+  };
   address?: {
     street: string;
     region: string;

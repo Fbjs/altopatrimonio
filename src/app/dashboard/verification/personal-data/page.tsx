@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -51,8 +50,8 @@ export default function PersonalDataPage() {
 
     async function onSubmit(values: z.infer<typeof personalDataFormSchema>) {
         try {
-            const birthDate = `${values.birthYear}-${values.birthMonth}-${values.birthDay}`;
-            const idExpiryDate = `${values.expiryYear}-${values.expiryMonth}-${values.expiryDay}`;
+            const birthDate = `${values.birthYear}-${values.birthMonth.padStart(2, '0')}-${values.birthDay.padStart(2, '0')}`;
+            const idExpiryDate = `${values.expiryYear}-${values.expiryMonth.padStart(2, '0')}-${values.expiryDay.padStart(2, '0')}`;
 
             const res = await fetch('/api/user/personal-data', {
                 method: 'PUT',

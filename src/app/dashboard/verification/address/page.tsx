@@ -42,6 +42,7 @@ export default function AddressPage() {
     
     return (
         <div className="w-full max-w-4xl mx-auto">
+
             <Link href="/dashboard/verification/personal-data" className="flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-primary mb-6">
               <ArrowLeft className="h-4 w-4" />
               Volver al paso anterior
@@ -112,7 +113,7 @@ export default function AddressPage() {
                                             <FormControl>
                                                 <SelectTrigger>
                                                     <SelectValue placeholder="Selecciona una región primero" />
-                                                </Trigger>
+                                                </SelectTrigger>
                                             </FormControl>
                                             <SelectContent>
                                                  {/* Add communes based on region */}
