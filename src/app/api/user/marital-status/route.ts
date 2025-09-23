@@ -18,17 +18,15 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ message: 'Estado civil es requerido.' }, { status: 400 });
     }
 
-    const user = await User.findById(userId);
-    if (!user) {
+    const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { $set: { 'personalInfo.maritalStatus': maritalStatus } },
+        { new: true }
+    );
+
+    if (!updatedUser) {
       return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
     }
-
-    if (!user.personalInfo) {
-      user.personalInfo = {};
-    }
-    user.personalInfo.maritalStatus = maritalStatus;
-    
-    await user.save();
 
     return NextResponse.json({ message: 'Estado civil actualizado con éxito.' }, { status: 200 });
   } catch (error: any) {

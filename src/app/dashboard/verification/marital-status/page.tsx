@@ -13,7 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from '@/components/ui/command';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 
 const maritalStatusOptions = [
@@ -34,6 +34,7 @@ const maritalStatusSchema = z.object({
 export default function MaritalStatusPage() {
     const { toast } = useToast();
     const router = useRouter();
+    const [open, setOpen] = React.useState(false)
 
     const form = useForm<z.infer<typeof maritalStatusSchema>>({
         resolver: zodResolver(maritalStatusSchema),
@@ -98,7 +99,7 @@ export default function MaritalStatusPage() {
                                 render={({ field }) => (
                                     <FormItem className="flex flex-col">
                                     <FormLabel>Estado civil</FormLabel>
-                                    <Popover>
+                                    <Popover open={open} onOpenChange={setOpen}>
                                         <PopoverTrigger asChild>
                                         <FormControl>
                                             <Button
@@ -121,28 +122,31 @@ export default function MaritalStatusPage() {
                                         <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
                                         <Command>
                                             <CommandInput placeholder="Buscar estado civil..." />
-                                            <CommandEmpty>No se encontró estado civil.</CommandEmpty>
-                                            <CommandGroup>
-                                            {maritalStatusOptions.map((status) => (
-                                                <CommandItem
-                                                value={status.label}
-                                                key={status.value}
-                                                onSelect={() => {
-                                                    form.setValue("maritalStatus", status.value);
-                                                }}
-                                                >
-                                                <Check
-                                                    className={cn(
-                                                    "mr-2 h-4 w-4",
-                                                    status.value === field.value
-                                                        ? "opacity-100"
-                                                        : "opacity-0"
-                                                    )}
-                                                />
-                                                {status.label}
-                                                </CommandItem>
-                                            ))}
-                                            </CommandGroup>
+                                            <CommandList>
+                                                <CommandEmpty>No se encontró estado civil.</CommandEmpty>
+                                                <CommandGroup>
+                                                {maritalStatusOptions.map((status) => (
+                                                    <CommandItem
+                                                    value={status.label}
+                                                    key={status.value}
+                                                    onSelect={() => {
+                                                        form.setValue("maritalStatus", status.value)
+                                                        setOpen(false)
+                                                    }}
+                                                    >
+                                                    <Check
+                                                        className={cn(
+                                                        "mr-2 h-4 w-4",
+                                                        status.value === field.value
+                                                            ? "opacity-100"
+                                                            : "opacity-0"
+                                                        )}
+                                                    />
+                                                    {status.label}
+                                                    </CommandItem>
+                                                ))}
+                                                </CommandGroup>
+                                            </CommandList>
                                         </Command>
                                         </PopoverContent>
                                     </Popover>
