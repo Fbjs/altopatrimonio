@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -204,23 +203,36 @@ export default function VerificationPage() {
             const user = await res.json();
 
             setSteps(prevSteps => {
-                const newSteps = [...prevSteps];
-                const identityStepIndex = newSteps.findIndex(s => s.id === "identity");
+                let newSteps = [...prevSteps];
 
+                // Check Identity Verification
+                const identityStepIndex = newSteps.findIndex(s => s.id === "identity");
                 if (identityStepIndex !== -1 && newSteps[identityStepIndex].status !== 'completed' && user.idFrontImage && user.idBackImage) {
-                    newSteps[identityStepIndex] = {
-                        ...newSteps[identityStepIndex],
-                        status: "completed",
-                        statusText: "Tu identidad ha sido verificada.",
-                        buttonText: "Completado"
-                    };
-                    const nextStepIndex = identityStepIndex + 1;
-                    if (nextStepIndex < newSteps.length) {
-                         newSteps[nextStepIndex].status = "active";
-                         newSteps[nextStepIndex].buttonText = "Completar";
+                    newSteps[identityStepIndex] = { ...newSteps[identityStepIndex], status: "completed", statusText: "Tu identidad ha sido verificada.", buttonText: "Completado" };
+                    if (identityStepIndex + 1 < newSteps.length) {
+                         newSteps[identityStepIndex + 1].status = "active";
+                         newSteps[identityStepIndex + 1].buttonText = "Completar";
                     }
                     setIsPolling(false);
+                } else if (newSteps[identityStepIndex].status === 'completed' && identityStepIndex + 1 < newSteps.length && newSteps[identityStepIndex + 1].status === 'locked') {
+                    newSteps[identityStepIndex + 1].status = "active";
+                    newSteps[identityStepIndex + 1].buttonText = "Completar";
                 }
+
+                // Check Basic Info Completion
+                const basicInfoStepIndex = newSteps.findIndex(s => s.id === "basic_info");
+                const isBasicInfoComplete = user.personalInfo?.nationality !== undefined && user.address && user.phone;
+                if (basicInfoStepIndex !== -1 && newSteps[basicInfoStepIndex].status !== 'completed' && isBasicInfoComplete) {
+                    newSteps[basicInfoStepIndex] = { ...newSteps[basicInfoStepIndex], status: "completed", statusText: "Completado", buttonText: "Completado" };
+                    if (basicInfoStepIndex + 1 < newSteps.length) {
+                         newSteps[basicInfoStepIndex + 1].status = "active";
+                         newSteps[basicInfoStepIndex + 1].buttonText = "Completar";
+                    }
+                } else if (newSteps[basicInfoStepIndex].status === 'completed' && basicInfoStepIndex + 1 < newSteps.length && newSteps[basicInfoStepIndex + 1].status === 'locked') {
+                    newSteps[basicInfoStepIndex + 1].status = "active";
+                    newSteps[basicInfoStepIndex + 1].buttonText = "Completar";
+                }
+                
                 return newSteps;
             });
         } catch (error) {
@@ -240,9 +252,13 @@ export default function VerificationPage() {
         };
     }, [isPolling, updateVerificationStatus]);
     
-    // Check status on initial load
+    // Check status on initial load and when page gets focus
     useEffect(() => {
         updateVerificationStatus();
+        window.addEventListener('focus', updateVerificationStatus);
+        return () => {
+            window.removeEventListener('focus', updateVerificationStatus);
+        };
     }, [updateVerificationStatus]);
 
 
@@ -276,6 +292,7 @@ export default function VerificationPage() {
                                     const isStepDisabled = step.status !== 'active';
                                     const CardComponent = (
                                          <Card 
+                                            key={step.id}
                                             className={cn(
                                                 "p-6",
                                                 step.status === 'locked' && 'bg-secondary/50',
@@ -296,7 +313,7 @@ export default function VerificationPage() {
                                                     <h3 className="text-lg font-semibold text-foreground">{step.title}</h3>
                                                     <p className="text-sm text-muted-foreground">{step.description}</p>
                                                     {step.status === 'completed' && (
-                                                        <p className="text-sm mt-2 text-green-600">{step.statusText}</p>
+                                                         <p className="text-sm mt-2 text-green-600 flex items-center gap-1"><CheckCircle size={16}/> {step.statusText}</p>
                                                     )}
                                                 </div>
                                                 <Button 
@@ -310,17 +327,17 @@ export default function VerificationPage() {
                                         </Card>
                                     );
 
-                                    if (step.id === "identity") {
+                                    if (step.id === "identity" && step.status === "active") {
                                         return (
-                                            <Dialog key={index} onOpenChange={(open) => setIsPolling(open && step.status !== 'completed')}>
-                                                 <DialogTrigger asChild disabled={isStepDisabled}>
+                                            <Dialog key={step.id} onOpenChange={(open) => setIsPolling(open)}>
+                                                 <DialogTrigger asChild>
                                                     {CardComponent}
                                                  </DialogTrigger>
-                                                {!isStepDisabled && <VerificationDialogContent onOpenChange={(open) => setIsPolling(open)} />}
+                                                <VerificationDialogContent onOpenChange={(open) => setIsPolling(open)} />
                                             </Dialog>
                                         )
                                     }
-                                    return <div key={index}>{CardComponent}</div>
+                                    return <div key={step.id}>{CardComponent}</div>
                                 })}
                             </div>
                         </CardContent>

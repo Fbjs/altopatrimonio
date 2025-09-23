@@ -43,7 +43,6 @@ export default function NationalityPage() {
               title: "Nacionalidad Guardada",
               description: "Has completado la información básica.",
             });
-            // Final step, maybe redirect to verification overview or dashboard
             router.push('/dashboard/verification');
         } catch (error: any) {
             toast({

@@ -1,4 +1,3 @@
-
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
@@ -111,5 +110,22 @@ const UserSchema: Schema = new Schema({
       type: String,
   },
 });
+
+// We need to fetch the full user profile including personalInfo for verification status check
+UserSchema.methods.toJSON = function() {
+    const userObject = this.toObject();
+    // Ensure all necessary fields are included
+    if (this.personalInfo) {
+        userObject.personalInfo = this.personalInfo;
+    }
+    if (this.address) {
+        userObject.address = this.address;
+    }
+    if (this.phone) {
+        userObject.phone = this.phone;
+    }
+    return userObject;
+};
+
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);
