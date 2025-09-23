@@ -29,6 +29,7 @@ export interface IUser extends Document {
     gender: string;
     birthDate: Date;
     idExpiryDate: Date;
+    maritalStatus?: string;
   };
   address?: {
     street: string;
@@ -97,6 +98,7 @@ const UserSchema: Schema = new Schema({
     gender: String,
     birthDate: Date,
     idExpiryDate: Date,
+    maritalStatus: String,
   },
   address: {
     street: String,

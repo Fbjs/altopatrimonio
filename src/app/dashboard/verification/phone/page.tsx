@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -44,7 +43,7 @@ export default function PhonePage() {
               title: "Número de Teléfono Guardado",
               description: "Tu número ha sido guardado con éxito.",
             });
-            // router.push('/dashboard/verification/next-step');
+            router.push('/dashboard/verification/marital-status');
         } catch (error: any) {
             toast({
                 title: "Error",
