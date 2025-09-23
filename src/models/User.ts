@@ -22,6 +22,19 @@ export interface IUser extends Document {
   };
   idFrontImage?: string;
   idBackImage?: string;
+  personalInfo?: {
+    firstName: string;
+    lastName: string;
+    secondLastName?: string;
+    gender: string;
+    birthDate: Date;
+    idExpiryDate: Date;
+  },
+  address?: {
+    street: string;
+    region: string;
+    commune: string;
+  }
 }
 
 const UserSchema: Schema = new Schema({
@@ -77,6 +90,19 @@ const UserSchema: Schema = new Schema({
   },
   idFrontImage: { type: String, select: false },
   idBackImage: { type: String, select: false },
+  personalInfo: {
+    firstName: String,
+    lastName: String,
+    secondLastName: String,
+    gender: String,
+    birthDate: Date,
+    idExpiryDate: Date,
+  },
+  address: {
+    street: String,
+    region: String,
+    commune: String,
+  }
 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

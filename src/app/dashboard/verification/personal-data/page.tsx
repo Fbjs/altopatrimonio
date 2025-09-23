@@ -3,6 +3,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -20,17 +21,18 @@ const personalDataFormSchema = z.object({
   lastName: z.string().min(2, { message: "El primer apellido es requerido." }),
   secondLastName: z.string().optional(),
   gender: z.string({ required_error: "Por favor selecciona tu sexo." }),
-  birthDay: z.string().length(2, { message: "DD" }),
-  birthMonth: z.string().length(2, { message: "MM" }),
-  birthYear: z.string().length(4, { message: "YYYY" }),
-  expiryDay: z.string().length(2, { message: "DD" }),
-  expiryMonth: z.string().length(2, { message: "MM" }),
-  expiryYear: z.string().length(4, { message: "YYYY" }),
+  birthDay: z.string().min(1, "DD").max(2),
+  birthMonth: z.string().min(1, "MM").max(2),
+  birthYear: z.string().min(4, "YYYY").max(4),
+  expiryDay: z.string().min(1, "DD").max(2),
+  expiryMonth: z.string().min(1, "MM").max(2),
+  expiryYear: z.string().min(4, "YYYY").max(4),
 });
 
 
 export default function PersonalDataPage() {
     const { toast } = useToast();
+    const router = useRouter();
 
     const form = useForm<z.infer<typeof personalDataFormSchema>>({
         resolver: zodResolver(personalDataFormSchema),
@@ -38,15 +40,45 @@ export default function PersonalDataPage() {
             firstName: "",
             lastName: "",
             secondLastName: "",
+            birthDay: "",
+            birthMonth: "",
+            birthYear: "",
+            expiryDay: "",
+            expiryMonth: "",
+            expiryYear: "",
         },
     });
 
-    function onSubmit(values: z.infer<typeof personalDataFormSchema>) {
-        console.log(values);
-        toast({
-          title: "Datos Guardados",
-          description: "Tu información personal ha sido guardada (simulación).",
-        });
+    async function onSubmit(values: z.infer<typeof personalDataFormSchema>) {
+        try {
+            const birthDate = `${values.birthYear}-${values.birthMonth}-${values.birthDay}`;
+            const idExpiryDate = `${values.expiryYear}-${values.expiryMonth}-${values.expiryDay}`;
+
+            const res = await fetch('/api/user/personal-data', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    ...values,
+                    birthDate: new Date(birthDate).toISOString(),
+                    idExpiryDate: new Date(idExpiryDate).toISOString(),
+                }),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al guardar los datos.');
+            }
+            toast({
+              title: "Datos Guardados",
+              description: "Tu información personal ha sido guardada.",
+            });
+            router.push('/dashboard/verification/address');
+        } catch (error: any) {
+            toast({
+                title: "Error",
+                description: error.message,
+                variant: "destructive",
+            });
+        }
     }
     
     return (
