@@ -5,26 +5,24 @@ import User from '@/models/User';
 
 export async function POST(req: NextRequest) {
   try {
-    const userId = req.headers.get('x-user-id');
-    if (!userId) {
-      return NextResponse.json({ message: 'No autorizado.' }, { status: 401 });
-    }
+    const { token, side, imageData } = await req.json();
 
-    const { side, imageData } = await req.json();
-
-    if (!side || !imageData || !['front', 'back'].includes(side)) {
+    if (!token || !side || !imageData || !['front', 'back'].includes(side)) {
       return NextResponse.json({ message: 'Datos inválidos.' }, { status: 400 });
     }
 
     await connectToDatabase();
+
+    const user = await User.findOne({ verificationQrCode: token });
+
+    if (!user) {
+      return NextResponse.json({ message: 'Usuario no encontrado o token inválido.' }, { status: 404 });
+    }
     
     const updateField = side === 'front' ? { idFrontImage: imageData } : { idBackImage: imageData };
     
-    const user = await User.findByIdAndUpdate(userId, updateField, { new: true });
-
-    if (!user) {
-      return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
-    }
+    // Use findByIdAndUpdate to ensure we are updating the correct user found by the token
+    await User.findByIdAndUpdate(user._id, updateField, { new: true });
 
     return NextResponse.json({ message: `Imagen del lado ${side} guardada con éxito.` }, { status: 200 });
 
@@ -33,3 +31,5 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ message: 'Error interno del servidor.' }, { status: 500 });
   }
 }
+
+    

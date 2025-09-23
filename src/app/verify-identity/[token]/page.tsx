@@ -72,7 +72,7 @@ export default function VerifyIdentityPage() {
             case 'document-select':
                 return <DocumentSelectStep onBack={() => handleBackStep('welcome')} onNext={() => handleNextStep('camera')} />;
             case 'camera':
-                return <CameraStep onBack={() => handleBackStep('document-select')} currentSide={documentSide} onSideChange={handleDocumentSideChange} setIsUploading={setIsUploading} />;
+                return <CameraStep onBack={() => handleBackStep('document-select')} currentSide={documentSide} onSideChange={handleDocumentSideChange} setIsUploading={setIsUploading} token={token} />;
         }
     };
     
@@ -168,7 +168,7 @@ function DocumentSelectStep({ onBack, onNext }: { onBack: () => void; onNext: ()
     return (
         <div className="text-left w-full">
             <header className="flex items-center mb-8 px-4">
-                <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2 mr-2 hover:bg-gray-800">
+                <Button variant="ghost" size="icon" onClick={onBack} className="-ml-2 mr-2 hover:bg-gray-800 text-white">
                     <ArrowLeft className="h-5 w-5" />
                 </Button>
             </header>
@@ -208,7 +208,7 @@ function DocumentSelectStep({ onBack, onNext }: { onBack: () => void; onNext: ()
     );
 }
 
-function CameraStep({ onBack, currentSide, onSideChange, setIsUploading }: { onBack: () => void; currentSide: DocumentSide; onSideChange: (side: DocumentSide) => void; setIsUploading: (isUploading: boolean) => void; }) {
+function CameraStep({ onBack, currentSide, onSideChange, setIsUploading, token }: { onBack: () => void; currentSide: DocumentSide; onSideChange: (side: DocumentSide) => void; setIsUploading: (isUploading: boolean) => void; token: string }) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
     const { toast } = useToast();
@@ -250,7 +250,7 @@ function CameraStep({ onBack, currentSide, onSideChange, setIsUploading }: { onB
             const res = await fetch('/api/user/upload-identity', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ side, imageData }),
+                body: JSON.stringify({ token, side, imageData }),
             });
             const data = await res.json();
             if (!res.ok) {
@@ -295,7 +295,8 @@ function CameraStep({ onBack, currentSide, onSideChange, setIsUploading }: { onB
                     title: "Verificación Completa",
                     description: "Tus documentos han sido subidos con éxito."
                 });
-                onBack(); // Or navigate to a success page
+                // Maybe close the window/tab or show a success message
+                 onBack();
             }
         }
     };
@@ -389,3 +390,4 @@ function UploadingState() {
     );
 }
 
+    
