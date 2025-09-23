@@ -36,12 +36,14 @@ export async function POST(req: Request) {
     await newUser.save();
 
     // En un entorno real, enviarías el correo electrónico aquí.
-    // Por ahora, lo mostraremos en la consola.
     const verificationLink = `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:9002'}/api/auth/verify/${emailVerificationToken}`;
     console.log(`Enlace de verificación para ${email}: ${verificationLink}`);
 
 
-    return NextResponse.json({ message: 'Usuario creado con éxito. Por favor, verifica tu correo electrónico.' }, { status: 201 });
+    return NextResponse.json({ 
+        message: 'Usuario creado con éxito. Por favor, verifica tu correo electrónico.',
+        verificationLink: verificationLink 
+    }, { status: 201 });
   } catch (error: any) {
     console.error('Error en el registro:', error.message);
     return NextResponse.json({ message: error.message || 'Error interno del servidor.' }, { status: 500 });
