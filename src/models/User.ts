@@ -34,7 +34,8 @@ export interface IUser extends Document {
     street: string;
     region: string;
     commune: string;
-  }
+  };
+  phone?: string;
 }
 
 const UserSchema: Schema = new Schema({
@@ -101,7 +102,10 @@ const UserSchema: Schema = new Schema({
     street: String,
     region: String,
     commune: String,
-  }
+  },
+  phone: {
+      type: String,
+  },
 });
 
 export default mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

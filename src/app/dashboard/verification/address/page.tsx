@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -31,13 +30,28 @@ export default function AddressPage() {
     });
 
     async function onSubmit(values: z.infer<typeof addressFormSchema>) {
-        console.log(values)
-        // Here you would typically save the data
-        toast({
-          title: "Datos de Dirección Guardados (Simulación)",
-          description: "Tu dirección ha sido guardada.",
-        });
-        // router.push('/dashboard/verification/next-step');
+        try {
+            const res = await fetch('/api/user/address', {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(values),
+            });
+            const data = await res.json();
+            if (!res.ok) {
+                throw new Error(data.message || 'Error al guardar la dirección.');
+            }
+            toast({
+              title: "Dirección Guardada",
+              description: "Tu dirección ha sido guardada con éxito.",
+            });
+            router.push('/dashboard/verification/phone');
+        } catch (error: any) {
+            toast({
+                title: "Error",
+                description: error.message,
+                variant: "destructive",
+            });
+        }
     }
     
     return (
