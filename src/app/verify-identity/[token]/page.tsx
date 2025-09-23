@@ -6,13 +6,13 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { HelpCircle, ChevronDown, ShieldCheck, Loader2, AlertTriangle, ArrowLeft, User, ChevronRight, Upload, CheckCircle } from 'lucide-react';
+import { HelpCircle, ChevronDown, ShieldCheck, Loader2, AlertTriangle, ArrowLeft, User, ChevronRight, Upload, CheckCircle, Sun, Layers } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 
-type VerificationStep = 'welcome' | 'document-select' | 'camera' | 'uploading' | 'success';
+type VerificationStep = 'welcome' | 'document-select' | 'camera' | 'preview' | 'uploading' | 'success';
 type DocumentSide = 'front' | 'back';
 
 export default function VerifyIdentityPage() {
@@ -20,6 +20,7 @@ export default function VerifyIdentityPage() {
     const [error, setError] = useState<string | null>(null);
     const [step, setStep] = useState<VerificationStep>('welcome');
     const [documentSide, setDocumentSide] = useState<DocumentSide>('front');
+    const [capturedImage, setCapturedImage] = useState<string | null>(null);
     const params = useParams();
     const token = params.token as string;
     const router = useRouter();
@@ -59,6 +60,11 @@ export default function VerifyIdentityPage() {
     const handleDocumentSideChange = (side: DocumentSide) => {
         setDocumentSide(side);
     }
+    
+    const handleImageCapture = (image: string) => {
+        setCapturedImage(image);
+        setStep('preview');
+    };
 
     const renderStep = () => {
         switch (step) {
@@ -70,12 +76,23 @@ export default function VerifyIdentityPage() {
                 return <CameraStep 
                             onBack={() => handleBackStep('document-select')} 
                             currentSide={documentSide} 
-                            onSideChange={handleDocumentSideChange} 
-                            setStep={setStep}
-                            token={token} 
+                            onImageCapture={handleImageCapture}
+                        />;
+            case 'preview':
+                return <PreviewStep
+                            image={capturedImage!}
+                            documentSide={documentSide}
+                            onRetake={() => setStep('camera')}
+                            onConfirm={() => setStep('uploading')}
                         />;
             case 'uploading':
-                return <UploadingState />;
+                return <UploadingState 
+                            image={capturedImage!} 
+                            documentSide={documentSide} 
+                            token={token}
+                            onSideChange={handleDocumentSideChange}
+                            setStep={setStep}
+                        />;
             case 'success':
                 return <SuccessStep />;
         }
@@ -102,6 +119,7 @@ export default function VerifyIdentityPage() {
     }
     
     const isCameraStep = step === 'camera';
+    const isTransparentBg = isCameraStep || step === 'preview' || step === 'uploading' || step === 'success';
 
     return (
         <div className={cn(
@@ -110,19 +128,17 @@ export default function VerifyIdentityPage() {
         )}>
             <main className={cn(
                 "flex-1 flex flex-col",
-                !isCameraStep && 'items-center justify-center p-6'
+                !isTransparentBg && 'items-center justify-center p-6'
             )}>
-                 {step === 'uploading' || step === 'success' ? renderStep() : (
-                     isCameraStep ? renderStep() : (
-                        <Card className="w-full max-w-sm p-0 shadow-none border-none bg-transparent">
-                            <CardContent className="p-0">
-                            {renderStep()}
-                            </CardContent>
-                        </Card>
-                    )
+                 {isTransparentBg ? renderStep() : (
+                    <Card className="w-full max-w-sm p-0 shadow-none border-none bg-transparent">
+                        <CardContent className="p-0">
+                        {renderStep()}
+                        </CardContent>
+                    </Card>
                  )}
             </main>
-            {step !== 'camera' && step !== 'uploading' && step !== 'success' && (
+            {step === 'welcome' && (
                  <footer className="text-center p-4 text-xs text-muted-foreground">
                     Motorizado por ⚡️ <span className="font-semibold">AiPrise</span>
                 </footer>
@@ -215,7 +231,7 @@ function DocumentSelectStep({ onBack, onNext }: { onBack: () => void; onNext: ()
     );
 }
 
-function CameraStep({ onBack, currentSide, onSideChange, setStep, token }: { onBack: () => void; currentSide: DocumentSide; onSideChange: (side: DocumentSide) => void; setStep: (step: VerificationStep) => void; token: string }) {
+function CameraStep({ onBack, currentSide, onImageCapture }: { onBack: () => void; currentSide: DocumentSide; onImageCapture: (image: string) => void; }) {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
     const { toast } = useToast();
@@ -250,30 +266,6 @@ function CameraStep({ onBack, currentSide, onSideChange, setStep, token }: { onB
             }
         };
     }, [toast]);
-
-    const uploadImage = async (imageData: string, side: DocumentSide) => {
-        setStep('uploading');
-        try {
-            const res = await fetch('/api/user/upload-identity', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ token, side, imageData }),
-            });
-            const data = await res.json();
-            if (!res.ok) {
-                throw new Error(data.message || 'Error al subir la imagen.');
-            }
-            return data;
-        } catch (error: any) {
-            toast({
-                title: "Error de Subida",
-                description: error.message,
-                variant: "destructive",
-            });
-            setStep('camera'); // Return to camera on error
-            return null;
-        }
-    };
     
     const handleCapture = async () => {
         if (!videoRef.current) return;
@@ -286,21 +278,7 @@ function CameraStep({ onBack, currentSide, onSideChange, setStep, token }: { onB
         
         context.drawImage(videoRef.current, 0, 0, canvas.width, canvas.height);
         const imageData = canvas.toDataURL('image/jpeg');
-        
-        const result = await uploadImage(imageData, currentSide);
-
-        if (result) {
-            if (currentSide === 'front') {
-                toast({
-                    title: "Frente Capturado",
-                    description: "La foto del frente de tu documento ha sido subida."
-                });
-                onSideChange('back');
-                setStep('camera');
-            } else {
-                setStep('success');
-            }
-        }
+        onImageCapture(imageData);
     };
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -310,17 +288,7 @@ function CameraStep({ onBack, currentSide, onSideChange, setStep, token }: { onB
         const reader = new FileReader();
         reader.onloadend = async () => {
             const imageData = reader.result as string;
-            const result = await uploadImage(imageData, currentSide);
-
-            if (result) {
-                 if (currentSide === 'front') {
-                    toast({ title: "Frente Subido", description: "La foto del frente de tu documento ha sido subida." });
-                    onSideChange('back');
-                    setStep('camera');
-                } else {
-                    setStep('success');
-                }
-            }
+            onImageCapture(imageData);
         };
         reader.readAsDataURL(file);
     };
@@ -383,7 +351,88 @@ function CameraStep({ onBack, currentSide, onSideChange, setStep, token }: { onB
     );
 }
 
-function UploadingState() {
+function PreviewStep({ image, documentSide, onRetake, onConfirm }: { image: string; documentSide: DocumentSide; onRetake: () => void; onConfirm: () => void; }) {
+    return (
+        <div className="flex flex-col h-screen w-full bg-gray-900">
+            <header className="flex items-center p-4 z-10">
+                <Button variant="ghost" size="icon" onClick={onRetake} className="text-white hover:bg-white/10 rounded-full">
+                    <ArrowLeft className="h-6 w-6" />
+                </Button>
+                <h1 className="text-xl font-semibold text-white text-center flex-1 -ml-10">
+                    Revisar la foto {documentSide === 'front' ? 'frontal' : 'del reverso'}
+                </h1>
+            </header>
+
+            <div className="flex-1 flex flex-col justify-center px-6 space-y-6">
+                <div className="space-y-3">
+                    <div className="flex items-center gap-2 text-sm text-white">
+                        <Sun className="h-5 w-5" />
+                        <span>Buena iluminación</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-sm text-white">
+                        <Layers className="h-5 w-5" />
+                        <span>Sin difuminación</span>
+                        <HelpCircle className="h-4 w-4 text-gray-400" />
+                    </div>
+                </div>
+                
+                <div className="rounded-lg overflow-hidden">
+                    <Image src={image} alt="Vista previa del documento" width={400} height={252} className="w-full h-auto object-contain" />
+                </div>
+            </div>
+
+            <div className="p-6 space-y-3">
+                <Button size="lg" className="w-full text-lg bg-primary hover:bg-primary/90 text-primary-foreground" onClick={onConfirm}>
+                    Continuar con esta foto
+                </Button>
+                <Button size="lg" variant="ghost" className="w-full text-lg text-primary hover:text-primary" onClick={onRetake}>
+                    Tomar foto de nuevo
+                </Button>
+            </div>
+        </div>
+    );
+}
+
+
+function UploadingState({ image, documentSide, token, onSideChange, setStep }: { image: string; documentSide: DocumentSide; token: string; onSideChange: (side: DocumentSide) => void; setStep: (step: VerificationStep) => void; }) {
+    const { toast } = useToast();
+
+    useEffect(() => {
+        const upload = async () => {
+            try {
+                const res = await fetch('/api/user/upload-identity', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token, side: documentSide, imageData: image }),
+                });
+                const data = await res.json();
+                if (!res.ok) {
+                    throw new Error(data.message || 'Error al subir la imagen.');
+                }
+                
+                if (documentSide === 'front') {
+                    toast({
+                        title: "Frente Subido",
+                        description: "La foto del frente de tu documento ha sido subida."
+                    });
+                    onSideChange('back');
+                    setStep('camera');
+                } else {
+                    setStep('success');
+                }
+            } catch (error: any) {
+                toast({
+                    title: "Error de Subida",
+                    description: error.message,
+                    variant: "destructive",
+                });
+                setStep('camera'); // Return to camera on error
+            }
+        };
+
+        upload();
+    }, [image, documentSide, token, onSideChange, setStep, toast]);
+
     return (
         <div className="flex flex-col items-center justify-center min-h-screen bg-black text-white p-4">
             <Loader2 className="h-12 w-12 animate-spin text-primary mb-4" />
@@ -403,3 +452,5 @@ function SuccessStep() {
         </div>
     );
 }
+
+
