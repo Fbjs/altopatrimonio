@@ -37,6 +37,11 @@ export interface IUser extends Document {
     commune: string;
   };
   phone?: string;
+  regulatoryInfo?: {
+    illicitActivities: boolean;
+    politicallyExposed: boolean;
+    fundOrigins: string[];
+  };
 }
 
 const UserSchema: Schema = new Schema({
@@ -114,6 +119,14 @@ const UserSchema: Schema = new Schema({
   },
   phone: {
       type: String,
+  },
+  regulatoryInfo: {
+    type: {
+        illicitActivities: Boolean,
+        politicallyExposed: Boolean,
+        fundOrigins: [String],
+    },
+    default: undefined
   },
 });
 

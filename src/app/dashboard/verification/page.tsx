@@ -183,7 +183,8 @@ export default function VerificationPage() {
             description: "Nos permite seguir los estándares de la CMF.",
             statusText: "Bloqueado",
             buttonText: "Bloqueado",
-            status: "locked"
+            status: "locked",
+            action: () => router.push('/dashboard/verification/regulatory-questions')
         },
         { 
             id: "investor_profile",
@@ -226,7 +227,7 @@ export default function VerificationPage() {
                 const basicInfoStepIndex = newSteps.findIndex(s => s.id === "basic_info");
                 if (basicInfoStepIndex !== -1) {
                     const basicInfoStep = newSteps[basicInfoStepIndex];
-                    const isBasicInfoComplete = user.personalInfo?.nationality !== undefined && user.address && user.phone;
+                    const isBasicInfoComplete = user.personalInfo?.nationality !== undefined && user.address && user.phone && user.personalInfo.maritalStatus;
                     if (basicInfoStep.status !== 'completed' && isBasicInfoComplete) {
                         newSteps[basicInfoStepIndex] = { ...basicInfoStep, status: "completed", statusText: "Completado", buttonText: "Completado" };
                     }
