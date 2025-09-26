@@ -92,19 +92,25 @@ const UserSchema: Schema = new Schema({
   idFrontImage: { type: String, select: false },
   idBackImage: { type: String, select: false },
   personalInfo: {
-    firstName: String,
-    lastName: String,
-    secondLastName: String,
-    gender: String,
-    birthDate: Date,
-    idExpiryDate: Date,
-    maritalStatus: String,
-    nationality: Boolean,
+    type: {
+      firstName: String,
+      lastName: String,
+      secondLastName: String,
+      gender: String,
+      birthDate: Date,
+      idExpiryDate: Date,
+      maritalStatus: String,
+      nationality: Boolean,
+    },
+    default: {}
   },
   address: {
-    street: String,
-    region: String,
-    commune: String,
+    type: {
+        street: String,
+        region: String,
+        commune: String,
+    },
+    default: undefined
   },
   phone: {
       type: String,

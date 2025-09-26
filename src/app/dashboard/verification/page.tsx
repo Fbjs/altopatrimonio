@@ -19,6 +19,8 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
+import connectToDatabase from '@/lib/db';
+import User, { IUser } from '@/models/User';
 
 type VerificationStepStatus = "completed" | "active" | "locked";
 
@@ -199,53 +201,57 @@ export default function VerificationPage() {
     const updateVerificationStatus = useCallback(async () => {
         try {
             const res = await fetch('/api/user/profile');
-            if (!res.ok) return;
+            if (!res.ok) {
+                // If the user profile fetch fails, we can't update status.
+                // We might want to handle this error, e.g., by showing a toast.
+                console.error("Failed to fetch user profile for status update.");
+                return;
+            }
             const user = await res.json();
-
+    
             setSteps(prevSteps => {
                 let newSteps = [...prevSteps];
-
+    
                 // Check Identity Verification
                 const identityStepIndex = newSteps.findIndex(s => s.id === "identity");
-                if (identityStepIndex !== -1 && newSteps[identityStepIndex].status !== 'completed' && user.idFrontImage && user.idBackImage) {
-                    newSteps[identityStepIndex] = { ...newSteps[identityStepIndex], status: "completed", statusText: "Tu identidad ha sido verificada.", buttonText: "Completado" };
-                    if (identityStepIndex + 1 < newSteps.length) {
-                         newSteps[identityStepIndex + 1].status = "active";
-                         newSteps[identityStepIndex + 1].buttonText = "Completar";
+                if (identityStepIndex !== -1) {
+                    const identityStep = newSteps[identityStepIndex];
+                    if (identityStep.status !== 'completed' && user.idFrontImage && user.idBackImage) {
+                        newSteps[identityStepIndex] = { ...identityStep, status: "completed", statusText: "Tu identidad ha sido verificada.", buttonText: "Completado" };
+                        setIsPolling(false); // Stop polling once verified
                     }
-                    setIsPolling(false);
-                } else if (newSteps[identityStepIndex].status === 'completed' && identityStepIndex + 1 < newSteps.length && newSteps[identityStepIndex + 1].status === 'locked') {
-                    newSteps[identityStepIndex + 1].status = "active";
-                    newSteps[identityStepIndex + 1].buttonText = "Completar";
                 }
-
+    
                 // Check Basic Info Completion
                 const basicInfoStepIndex = newSteps.findIndex(s => s.id === "basic_info");
-                const isBasicInfoComplete = user.personalInfo?.nationality !== undefined && user.address && user.phone;
-                if (basicInfoStepIndex !== -1 && newSteps[basicInfoStepIndex].status !== 'completed' && isBasicInfoComplete) {
-                    newSteps[basicInfoStepIndex] = { ...newSteps[basicInfoStepIndex], status: "completed", statusText: "Completado", buttonText: "Completado" };
-                    if (basicInfoStepIndex + 1 < newSteps.length) {
-                         newSteps[basicInfoStepIndex + 1].status = "active";
-                         newSteps[basicInfoStepIndex + 1].buttonText = "Completar";
+                if (basicInfoStepIndex !== -1) {
+                    const basicInfoStep = newSteps[basicInfoStepIndex];
+                    const isBasicInfoComplete = user.personalInfo?.nationality !== undefined && user.address && user.phone;
+                    if (basicInfoStep.status !== 'completed' && isBasicInfoComplete) {
+                        newSteps[basicInfoStepIndex] = { ...basicInfoStep, status: "completed", statusText: "Completado", buttonText: "Completado" };
                     }
-                } else if (newSteps[basicInfoStepIndex].status === 'completed' && basicInfoStepIndex + 1 < newSteps.length && newSteps[basicInfoStepIndex + 1].status === 'locked') {
-                    newSteps[basicInfoStepIndex + 1].status = "active";
-                    newSteps[basicInfoStepIndex + 1].buttonText = "Completar";
                 }
-                
+    
+                // Chain the status updates: unlock the next step if the current one is completed
+                for (let i = 0; i < newSteps.length - 1; i++) {
+                    if (newSteps[i].status === 'completed' && newSteps[i + 1].status === 'locked') {
+                        newSteps[i + 1].status = 'active';
+                        newSteps[i + 1].buttonText = 'Completar';
+                    }
+                }
+    
                 return newSteps;
             });
+    
         } catch (error) {
             console.error("Error al verificar el estado:", error);
         }
     }, []);
 
     useEffect(() => {
-        let interval: NodeJS.Timeout;
+        let interval: NodeJS.Timeout | undefined;
         if (isPolling) {
-            interval = setInterval(() => {
-                updateVerificationStatus();
-            }, 3000); // Poll every 3 seconds
+            interval = setInterval(updateVerificationStatus, 3000); // Poll every 3 seconds
         }
         return () => {
             if (interval) clearInterval(interval);
@@ -255,9 +261,10 @@ export default function VerificationPage() {
     // Check status on initial load and when page gets focus
     useEffect(() => {
         updateVerificationStatus();
-        window.addEventListener('focus', updateVerificationStatus);
+        const handleFocus = () => updateVerificationStatus();
+        window.addEventListener('focus', handleFocus);
         return () => {
-            window.removeEventListener('focus', updateVerificationStatus);
+            window.removeEventListener('focus', handleFocus);
         };
     }, [updateVerificationStatus]);
 
@@ -294,7 +301,7 @@ export default function VerificationPage() {
                                          <Card 
                                             key={step.id}
                                             className={cn(
-                                                "p-6",
+                                                "p-6 transition-all",
                                                 step.status === 'locked' && 'bg-secondary/50',
                                                 step.status === 'active' && 'border-primary ring-1 ring-primary bg-primary/5',
                                                 step.status === 'completed' && 'border-green-500 ring-1 ring-green-500 bg-green-500/5'
@@ -302,7 +309,7 @@ export default function VerificationPage() {
                                         >
                                             <div className="flex items-start gap-6">
                                                 <div className={cn(
-                                                    "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold flex-shrink-0",
+                                                    "flex h-8 w-8 items-center justify-center rounded-full text-lg font-bold flex-shrink-0 transition-colors",
                                                      step.status === 'locked' && 'bg-border text-muted-foreground',
                                                      step.status === 'active' && 'bg-primary text-primary-foreground',
                                                      step.status === 'completed' && 'bg-green-600 text-white'
@@ -331,13 +338,13 @@ export default function VerificationPage() {
                                         return (
                                             <Dialog key={step.id} onOpenChange={(open) => setIsPolling(open)}>
                                                  <DialogTrigger asChild>
-                                                    {CardComponent}
+                                                    <div className="cursor-pointer">{CardComponent}</div>
                                                  </DialogTrigger>
                                                 <VerificationDialogContent onOpenChange={(open) => setIsPolling(open)} />
                                             </Dialog>
                                         )
                                     }
-                                    return <div key={step.id}>{CardComponent}</div>
+                                    return <div key={step.id} className={cn(!isStepDisabled && "cursor-pointer")} onClick={!isStepDisabled ? step.action : undefined}>{CardComponent}</div>;
                                 })}
                             </div>
                         </CardContent>

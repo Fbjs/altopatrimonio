@@ -13,19 +13,25 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ message: 'No autorizado.' }, { status: 401 });
     }
 
-    const user = await User.findById(userId).select('+idFrontImage +idBackImage');
+    const user = await User.findById(userId).select('+idFrontImage +idBackImage +personalInfo +address +phone');
 
     if (!user) {
       return NextResponse.json({ message: 'Usuario no encontrado.' }, { status: 404 });
     }
     
+    // Convert to a plain object to include all fields for the response
+    const userObject = user.toObject({ virtuals: true });
+    
     const profileData = {
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        role: user.role,
-        idFrontImage: !!user.idFrontImage,
-        idBackImage: !!user.idBackImage,
+        name: userObject.name,
+        email: userObject.email,
+        avatar: userObject.avatar,
+        role: userObject.role,
+        idFrontImage: !!userObject.idFrontImage,
+        idBackImage: !!userObject.idBackImage,
+        personalInfo: userObject.personalInfo,
+        address: userObject.address,
+        phone: userObject.phone,
     };
 
     return NextResponse.json(profileData, { status: 200 });
