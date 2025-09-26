@@ -19,8 +19,6 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useRouter } from 'next/navigation';
-import connectToDatabase from '@/lib/db';
-import User, { IUser } from '@/models/User';
 
 type VerificationStepStatus = "completed" | "active" | "locked";
 
@@ -203,15 +201,13 @@ export default function VerificationPage() {
         try {
             const res = await fetch('/api/user/profile');
             if (!res.ok) {
-                // If the user profile fetch fails, we can't update status.
-                // We might want to handle this error, e.g., by showing a toast.
                 console.error("Failed to fetch user profile for status update.");
                 return;
             }
             const user = await res.json();
     
             setSteps(prevSteps => {
-                let newSteps = [...prevSteps];
+                let newSteps = [...prevSteps].map(step => ({...step})); // Deep copy
     
                 // Check Identity Verification
                 const identityStepIndex = newSteps.findIndex(s => s.id === "identity");
@@ -219,7 +215,7 @@ export default function VerificationPage() {
                     const identityStep = newSteps[identityStepIndex];
                     if (identityStep.status !== 'completed' && user.idFrontImage && user.idBackImage) {
                         newSteps[identityStepIndex] = { ...identityStep, status: "completed", statusText: "Tu identidad ha sido verificada.", buttonText: "Completado" };
-                        setIsPolling(false); // Stop polling once verified
+                        setIsPolling(false);
                     }
                 }
     
@@ -230,6 +226,15 @@ export default function VerificationPage() {
                     const isBasicInfoComplete = user.personalInfo?.nationality !== undefined && user.address && user.phone && user.personalInfo.maritalStatus;
                     if (basicInfoStep.status !== 'completed' && isBasicInfoComplete) {
                         newSteps[basicInfoStepIndex] = { ...basicInfoStep, status: "completed", statusText: "Completado", buttonText: "Completado" };
+                    }
+                }
+
+                // Check Regulatory Info Completion
+                const regulatoryStepIndex = newSteps.findIndex(s => s.id === "regulatory_questions");
+                if (regulatoryStepIndex !== -1) {
+                    const regulatoryStep = newSteps[regulatoryStepIndex];
+                    if (regulatoryStep.status !== 'completed' && user.regulatoryInfo) {
+                        newSteps[regulatoryStepIndex] = { ...regulatoryStep, status: "completed", statusText: "Completado", buttonText: "Completado" };
                     }
                 }
     
@@ -252,14 +257,13 @@ export default function VerificationPage() {
     useEffect(() => {
         let interval: NodeJS.Timeout | undefined;
         if (isPolling) {
-            interval = setInterval(updateVerificationStatus, 3000); // Poll every 3 seconds
+            interval = setInterval(updateVerificationStatus, 3000);
         }
         return () => {
             if (interval) clearInterval(interval);
         };
     }, [isPolling, updateVerificationStatus]);
     
-    // Check status on initial load and when page gets focus
     useEffect(() => {
         updateVerificationStatus();
         const handleFocus = () => updateVerificationStatus();
