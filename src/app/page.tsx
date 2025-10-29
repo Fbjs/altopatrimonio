@@ -134,7 +134,7 @@ const projects = [
     minInvestment: "$15.000.000",
     raised: 20000000,
     goal: 171000000,
-    countdown: "1 día y 02:14:27 horas"
+    countdown: "46 día y 02:14:27 horas"
   },
   {
     slug: "terreno-san-carlos-de-apoquindo",
